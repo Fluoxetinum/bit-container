@@ -1,0 +1,31 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:53833",
+      "sslPort": 0
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchUrl": "files/upload",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "StorageService": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\Andrey\\source\\Workspaces\\Andrey.Gurin\\Labs\\BitContainer\\StorageService\\bin\\Debug\\netcoreapp3.0\\BitContainer.StorageService.exe",
+      "commandLineArgs": "http://localhost:53833",
+      "launchBrowser": true,
+      "launchUrl": "files/upload",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5000"
+    }
+  }
+}

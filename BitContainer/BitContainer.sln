@@ -1,0 +1,97 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Presentation", "Presentation\BitContainer.Presentation.csproj", "{639BB197-45F5-4D6E-9166-E33D3F816A90}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.StorageService", "StorageService\BitContainer.StorageService.csproj", "{095DD824-10BF-4AC4-A758-92AB7412284E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.DataAccess", "DataAccess\BitContainer.DataAccess.csproj", "{3C05E161-B865-4526-95FB-2228BAADAB99}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Contracts", "DTO\BitContainer.Contracts.csproj", "{CE4B541E-0682-4F2C-A6E4-04833A5B41AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Tests", "BitContainerServiceTests\BitContainer.Tests.csproj", "{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Shared", "BitContainer.Shared\BitContainer.Shared.csproj", "{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.AuthService", "BitContainer.AuthService\BitContainer.AuthService.csproj", "{D19CC465-F2D4-40B7-963F-D3F129269AF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.LogService", "BitContainer.LogService\BitContainer.LogService.csproj", "{DAC073ED-01A4-4F1D-B12A-4E87695271C3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{639BB197-45F5-4D6E-9166-E33D3F816A90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{639BB197-45F5-4D6E-9166-E33D3F816A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{639BB197-45F5-4D6E-9166-E33D3F816A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{639BB197-45F5-4D6E-9166-E33D3F816A90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{095DD824-10BF-4AC4-A758-92AB7412284E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{095DD824-10BF-4AC4-A758-92AB7412284E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{095DD824-10BF-4AC4-A758-92AB7412284E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{095DD824-10BF-4AC4-A758-92AB7412284E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C05E161-B865-4526-95FB-2228BAADAB99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C05E161-B865-4526-95FB-2228BAADAB99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C05E161-B865-4526-95FB-2228BAADAB99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C05E161-B865-4526-95FB-2228BAADAB99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE4B541E-0682-4F2C-A6E4-04833A5B41AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE4B541E-0682-4F2C-A6E4-04833A5B41AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE4B541E-0682-4F2C-A6E4-04833A5B41AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE4B541E-0682-4F2C-A6E4-04833A5B41AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D19CC465-F2D4-40B7-963F-D3F129269AF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D19CC465-F2D4-40B7-963F-D3F129269AF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D19CC465-F2D4-40B7-963F-D3F129269AF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D19CC465-F2D4-40B7-963F-D3F129269AF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0594528C-647B-40F2-A00D-1DF05C606E3D}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 9
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://dev.azure.com/vacourse5
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Presentation\\BitContainer.Presentation.csproj
+		SccProjectName1 = Presentation
+		SccLocalPath1 = Presentation
+		SccProjectUniqueName2 = DataAccess\\BitContainer.DataAccess.csproj
+		SccProjectName2 = DataAccess
+		SccLocalPath2 = DataAccess
+		SccProjectUniqueName3 = DTO\\BitContainer.Contracts.csproj
+		SccProjectName3 = DTO
+		SccLocalPath3 = DTO
+		SccProjectUniqueName4 = StorageService\\BitContainer.StorageService.csproj
+		SccProjectName4 = StorageService
+		SccLocalPath4 = StorageService
+		SccProjectUniqueName5 = BitContainerServiceTests\\BitContainer.Tests.csproj
+		SccProjectName5 = BitContainerServiceTests
+		SccLocalPath5 = BitContainerServiceTests
+		SccProjectUniqueName6 = BitContainer.Shared\\BitContainer.Shared.csproj
+		SccProjectName6 = BitContainer.Shared
+		SccLocalPath6 = BitContainer.Shared
+		SccProjectUniqueName7 = BitContainer.AuthService\\BitContainer.AuthService.csproj
+		SccProjectName7 = BitContainer.AuthService
+		SccLocalPath7 = BitContainer.AuthService
+		SccProjectUniqueName8 = BitContainer.LogService\\BitContainer.LogService.csproj
+		SccProjectName8 = BitContainer.LogService
+		SccLocalPath8 = BitContainer.LogService
+	EndGlobalSection
+EndGlobal
