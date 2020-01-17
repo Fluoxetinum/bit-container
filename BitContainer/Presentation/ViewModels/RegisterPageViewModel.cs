@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Controllers.Proxies.Exceptions;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands;
+using BitContainer.Shared.Http.Exceptions;
 
 namespace BitContainer.Presentation.ViewModels
 {

@@ -11,7 +11,7 @@ namespace BitContainer.DataAccess.Queries.Stats
         public Guid UserId { get; set; }
 
         private static readonly String QueryString = 
-            $"SELECT {DbNames.Stats.Id}, {DbNames.Stats.UserId}, " +
+            $"SELECT {DbNames.Stats.UserId}, " +
             $"{DbNames.Stats.FilesCount}, {DbNames.Stats.DirsCount}, {DbNames.Stats.StorageSize} " +
             $"FROM {DbNames.Stats} " +
             $"WHERE {DbNames.Stats.UserId} = @{nameof(UserId)}";

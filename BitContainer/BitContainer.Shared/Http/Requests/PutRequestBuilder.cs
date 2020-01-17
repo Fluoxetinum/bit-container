@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
-using BitContainer.Presentation.Controllers.Proxies.Requests;
 using Newtonsoft.Json;
 
 namespace BitContainer.Shared.Http.Requests

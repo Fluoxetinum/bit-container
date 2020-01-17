@@ -101,16 +101,11 @@ namespace BitContainer.AuthService.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
             var encodedJwt = tokenHandler.WriteToken(jwt);
 
-            CUserStats stats = _usersProvider.GetStats(user.Id);
-
             CAuthenticatedUserContract response = 
                 new CAuthenticatedUserContract(
                     encodedJwt, 
                     user.Id, 
-                    user.Name, 
-                    stats.FilesCount, 
-                    stats.DirsCount, 
-                    stats.StorageSize);
+                    user.Name);
 
             Response.ContentType = "applications/json";
 
@@ -123,8 +118,8 @@ namespace BitContainer.AuthService.Controllers
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Name),
-                new Claim(ClaimTypes.Name, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
             };
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token");

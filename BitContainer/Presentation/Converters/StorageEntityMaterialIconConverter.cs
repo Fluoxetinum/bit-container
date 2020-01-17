@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
-using BitContainer.Presentation.Model;
 using BitContainer.Presentation.Models;
 using MaterialDesignThemes.Wpf;
 

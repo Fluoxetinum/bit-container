@@ -4,6 +4,8 @@ using System.IO;
 using System.Data.Sql;
 using BitContainer.DataAccess.Queries;
 using BitContainer.DataAccess.Queries.Base;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 
 namespace BitContainer.DataAccess
 {
@@ -11,9 +13,17 @@ namespace BitContainer.DataAccess
     {
         private static String _connectionString;
 
-        public static void Init(String sqlServerConnectionString)
+        public static void Init(String sqlServerConnectionString, String initScriptPath, String dbName)
         {
-            _connectionString = sqlServerConnectionString;
+            String initScript = File.ReadAllText(initScriptPath);
+
+            using (var connection = new SqlConnection(sqlServerConnectionString))
+            {
+                Server server = new Server(new ServerConnection(connection));
+                server.ConnectionContext.ExecuteNonQuery(initScript);
+            }
+
+            _connectionString = $"{sqlServerConnectionString}Database={dbName}";
         }
         
         public static T ExecuteQuery<T>(IQuery<T> query)

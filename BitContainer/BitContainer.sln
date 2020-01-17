@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.AuthService", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.LogService", "BitContainer.LogService\BitContainer.LogService.csproj", "{DAC073ED-01A4-4F1D-B12A-4E87695271C3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{BA208C65-DC67-4861-9BF9-2CE9D0F82C25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,37 +63,12 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{095DD824-10BF-4AC4-A758-92AB7412284E} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
+		{D19CC465-F2D4-40B7-963F-D3F129269AF8} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
+		{DAC073ED-01A4-4F1D-B12A-4E87695271C3} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0594528C-647B-40F2-A00D-1DF05C606E3D}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 9
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://dev.azure.com/vacourse5
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Presentation\\BitContainer.Presentation.csproj
-		SccProjectName1 = Presentation
-		SccLocalPath1 = Presentation
-		SccProjectUniqueName2 = DataAccess\\BitContainer.DataAccess.csproj
-		SccProjectName2 = DataAccess
-		SccLocalPath2 = DataAccess
-		SccProjectUniqueName3 = DTO\\BitContainer.Contracts.csproj
-		SccProjectName3 = DTO
-		SccLocalPath3 = DTO
-		SccProjectUniqueName4 = StorageService\\BitContainer.StorageService.csproj
-		SccProjectName4 = StorageService
-		SccLocalPath4 = StorageService
-		SccProjectUniqueName5 = BitContainerServiceTests\\BitContainer.Tests.csproj
-		SccProjectName5 = BitContainerServiceTests
-		SccLocalPath5 = BitContainerServiceTests
-		SccProjectUniqueName6 = BitContainer.Shared\\BitContainer.Shared.csproj
-		SccProjectName6 = BitContainer.Shared
-		SccLocalPath6 = BitContainer.Shared
-		SccProjectUniqueName7 = BitContainer.AuthService\\BitContainer.AuthService.csproj
-		SccProjectName7 = BitContainer.AuthService
-		SccLocalPath7 = BitContainer.AuthService
-		SccProjectUniqueName8 = BitContainer.LogService\\BitContainer.LogService.csproj
-		SccProjectName8 = BitContainer.LogService
-		SccLocalPath8 = BitContainer.LogService
 	EndGlobalSection
 EndGlobal

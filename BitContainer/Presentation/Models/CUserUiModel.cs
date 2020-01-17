@@ -1,8 +1,8 @@
 ﻿using System;
-using BitContainer.Contracts.V1;
+using BitContainer.Contracts.V1.Auth;
 using BitContainer.Presentation.ViewModels.Base;
 
-namespace BitContainer.Presentation.Model
+namespace BitContainer.Presentation.Models
 {
     public class CUserUiModel : ViewModelBase
     {

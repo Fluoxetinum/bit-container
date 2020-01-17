@@ -116,11 +116,18 @@ namespace BitContainer.DataAccess.DataProviders
             Dictionary<Guid,CRestrictedStorageEntity> flicked = new Dictionary<Guid, CRestrictedStorageEntity>();
             Stack<CRestrictedStorageEntity> entities = new Stack<CRestrictedStorageEntity>();
 
+            HashSet<Guid> upMostParents = new HashSet<Guid>();
+
+            upMostParents.Add(parentId);
+
             if (parentId.IsRootDir())
             {
                 var query = new GetSharedRootChildrenQuery(ownerId);
                 foreach (var children in query.Execute(command))
+                {
+                    upMostParents.Add(children.Entity.ParentId);
                     entities.Push(children);
+                }
             }
             else
             {
@@ -151,13 +158,13 @@ namespace BitContainer.DataAccess.DataProviders
             {
                 
                 Guid currentPurentId = r.Entity.ParentId;
-                while (currentPurentId != parentId)
+                while (!upMostParents.Contains(currentPurentId))
                 {
                     CRestrictedStorageEntity currentParent = flicked[currentPurentId];
                     downpath.AddFirst(currentPurentId);
                     currentPurentId = currentParent.Entity.ParentId;
                 }
-                downpath.AddFirst(parentId);
+                downpath.AddFirst(currentPurentId);
                 downpath.AddLast(r.Entity.Id);
 
                 searchResult.Add(new CSearchResult()

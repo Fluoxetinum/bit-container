@@ -48,7 +48,7 @@ namespace BitContainer.DataAccess.Queries.Base
         public class SharesTableNames : DbEntityName
         {
             public SharesTableNames():base(entityName:"Shares"){}
-            public String PersonApprovedId => $"{EntityName}.PersonApprovedID";
+            public String UserApprovedId => $"{EntityName}.UserApprovedID";
             public String AccessTypeId => $"{EntityName}.AccessTypeID";
             public String EntityId => $"{EntityName}.EntityID";
         }
@@ -82,7 +82,7 @@ namespace BitContainer.DataAccess.Queries.Base
             public GetShareByIdSpNames() : base(entityName:"[sp_GetShareById]"){}
 
             public String PersonId => "PersonID";
-            public String EntityID => "EntityID";
+            public String EntityId => "EntityID";
         }
         
         public class GetOwnerDirChildrenSpNames : DbEntityName

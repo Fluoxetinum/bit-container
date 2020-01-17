@@ -49,7 +49,10 @@ namespace BitContainer.AuthService
             String sqlServerConnectionString = 
                 Configuration.GetConnectionString("SqlServerDbConnectionString");
 
-            CDbHelper.Init(sqlServerConnectionString);
+            String initScriptPath =
+                Configuration.GetConnectionString("InitScriptPath");
+            
+            CDbHelper.Init(sqlServerConnectionString, initScriptPath, "BITCONTAINER_AUTH_DB");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

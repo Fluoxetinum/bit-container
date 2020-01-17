@@ -19,21 +19,21 @@ namespace BitContainer.DataAccess.DataProviders
             if (entityId.IsRootDir()) return ERestrictedAccessType.Write;
 
             var ownerQuery = new GetOwnerQuery(entityId);
-            CUser owner = CDbHelper.ExecuteQuery(ownerQuery);
+            Guid ownerId = CDbHelper.ExecuteQuery(ownerQuery);
             var shareQuery = new GetShareByIdQuery(entityId, userId);
             CShare share = CDbHelper.ExecuteQuery(shareQuery);
 
-            return ComputeAccess(userId, owner, share);
+            return ComputeAccess(userId, ownerId, share);
         }
 
-        private ERestrictedAccessType ComputeAccess(Guid subjectUserId, CUser owner, CShare share)
+        private ERestrictedAccessType ComputeAccess(Guid subjectUserId, Guid ownerId, CShare share)
         {
-            if (subjectUserId == owner.Id) return ERestrictedAccessType.Write;
+            if (subjectUserId == ownerId) return ERestrictedAccessType.Write;
             if (share != null) return share.RestrictedAccessType;
             return ERestrictedAccessType.None;
         }
 
-        public CUser GetStorageEntityOwner(Guid entityId)
+        public Guid GetStorageEntityOwner(Guid entityId)
         {
             var query = new GetOwnerQuery(entityId);
             return CDbHelper.ExecuteQuery(query);

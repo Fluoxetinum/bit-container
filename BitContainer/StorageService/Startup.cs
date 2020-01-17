@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.Presentation.Controllers.Proxies;
 using BitContainer.Shared.Auth;
 using BitContainer.Shared.Http;
 using BitContainer.Shared.Middleware;
@@ -52,12 +51,15 @@ namespace BitContainer.StorageService
             
             services.AddSingleton<IStorageProvider, CStorageProvider>();
             services.AddSingleton<IParallelAccessManager, CReadWriteFileLock>();
-
+            services.AddSingleton<IStatsProvider, CStatsProvider>();
             services.AddSignalR();
             
             String sqlServerConnectionString = 
                 Configuration.GetConnectionString("SqlServerDbConnectionString");
-            CDbHelper.Init(sqlServerConnectionString);
+            String initScriptPath =
+                Configuration.GetConnectionString("InitScriptPath");
+            
+            CDbHelper.Init(sqlServerConnectionString, initScriptPath, "BITCONTAINER_STORAGE_DB");
 
             String authServiceUrl = 
                 Configuration.GetConnectionString("AuthServiceUrl");

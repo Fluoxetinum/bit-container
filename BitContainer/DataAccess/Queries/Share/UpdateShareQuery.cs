@@ -17,7 +17,7 @@ namespace BitContainer.DataAccess.Queries.Share
         private static readonly String QueryString = 
             $"UPDATE {DbNames.Shares} " +
             $"SET {DbNames.Shares.AccessTypeId} = @{nameof(RestrictedAccessType)} " +
-            $"WHERE {DbNames.Shares.PersonApprovedId} = @{nameof(PersonApprovedId)} " +
+            $"WHERE {DbNames.Shares.UserApprovedId} = @{nameof(PersonApprovedId)} " +
             $"AND {DbNames.Shares.EntityId} = @{nameof(EntityId)}";
 
         public UpdateShareQuery(Guid personApprovedId, ERestrictedAccessType restrictedAccessType, Guid entityId)

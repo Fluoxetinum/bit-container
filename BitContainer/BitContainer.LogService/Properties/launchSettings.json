@@ -19,7 +19,7 @@
     },
     "BitContainer.LogService": {
       "commandName": "Executable",
-      "executablePath": "C:\\Users\\Andrey\\source\\Workspaces\\Andrey.Gurin\\Labs\\BitContainer\\BitContainer.LogService\\bin\\Debug\\netcoreapp3.0\\BitContainer.LogService.exe",
+      "executablePath": "..\\netcoreapp3.0\\BitContainer.LogService.exe",
       "commandLineArgs": "http://localhost:60836",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",

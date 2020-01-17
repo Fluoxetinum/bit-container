@@ -38,8 +38,11 @@ namespace BitContainer.LogService
 
             String sqlServerConnectionString = 
                 Configuration.GetConnectionString("SqlServerDbConnectionString");
-
-            CDbHelper.Init(sqlServerConnectionString);
+            String initScriptPath =
+                Configuration.GetConnectionString("InitScriptPath");
+            
+            CDbHelper.Init(sqlServerConnectionString, initScriptPath,"BITCONTAINER_LOGS_DB");
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

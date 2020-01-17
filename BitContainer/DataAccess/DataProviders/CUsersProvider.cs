@@ -11,21 +11,10 @@ namespace BitContainer.DataAccess.DataProviders
     {
         public Int32 AddNewUser(String name, Byte[] passwordHash, Byte[] salt)
         {
-            Int32 result = -1;
-            CDbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
-            {
-                var query = new AddNewUserQuery(name, passwordHash, salt);
-                query.Execute(command);
-
-                var userQuery = new GetUserWithNameQuery(name);
-                CUser user = userQuery.Execute(command);
-
-                var newStatsQuery = new AddNewUserStatsQuery(user.Id);
-                result = newStatsQuery.Execute(command);
-            });
-            return result;
+            var query = new AddNewUserQuery(name, passwordHash, salt);
+            return CDbHelper.ExecuteQuery(query);
         }
-
+        
         public Byte[] GetSalt(String userName)
         {
             var query = new GetSaltQuery(userName);
@@ -57,12 +46,5 @@ namespace BitContainer.DataAccess.DataProviders
             });
             return result;
         }
-
-        public CUserStats GetStats(Guid id)
-        {
-            var query = new GetUserStatsQuery(id);
-            return CDbHelper.ExecuteQuery(query);
-        }
-
     }
 }

@@ -27,7 +27,7 @@ namespace BitContainer.DataAccess.Queries.Get
         {
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = ProcedureName;
-            command.Parameters.AddWithValue(DbNames.GetShareById.EntityID, Id);
+            command.Parameters.AddWithValue(DbNames.GetShareById.EntityId, Id);
             command.Parameters.AddWithValue(DbNames.GetShareById.PersonId, PersonId);
             return command;
         }

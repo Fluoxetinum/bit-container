@@ -13,7 +13,7 @@ namespace BitContainer.DataAccess.Queries.Share
     {
         public Guid PersonId { get; set; }
 
-        private String ProcedureName = $"{DbNames.GetSharedRootChildren}";
+        private readonly String _procedureName = $"{DbNames.GetSharedRootChildren}";
 
         public GetSharedRootChildrenQuery(Guid person) : base(new CRestrictedDirectoryMapper())
         {
@@ -23,7 +23,7 @@ namespace BitContainer.DataAccess.Queries.Share
         public override SqlCommand Prepare(SqlCommand command)
         {
             command.CommandType = CommandType.StoredProcedure;
-            command.CommandText = ProcedureName;
+            command.CommandText = _procedureName;
             command.Parameters.AddWithValue($"{nameof(PersonId)}", PersonId);
             return command;
         }

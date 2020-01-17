@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Model;
+using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands;
 

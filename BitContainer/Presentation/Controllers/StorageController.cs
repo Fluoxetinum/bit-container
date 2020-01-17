@@ -10,7 +10,6 @@ using BitContainer.Contracts.V1.Storage;
 using BitContainer.Presentation.Controllers.Proxies;
 using BitContainer.Presentation.Helpers;
 using BitContainer.Presentation.Icons;
-using BitContainer.Presentation.Model;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels;
 using BitContainer.Presentation.ViewModels.Enums;

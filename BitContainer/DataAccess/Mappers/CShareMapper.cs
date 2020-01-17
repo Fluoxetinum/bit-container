@@ -11,7 +11,7 @@ namespace BitContainer.DataAccess.Mappers
     {
         public CShare ReadItem(SqlDataReader rd)
         {
-            Guid personId = rd.GetGuid("PersonApprovedID");
+            Guid personId = rd.GetGuid("UserApprovedID");
             
             ERestrictedAccessType restrictedAccessType = rd.GetString("AccessType").ToAccessType();
 

@@ -4,9 +4,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Auth;
-using BitContainer.Presentation.Controllers.Proxies;
-using BitContainer.Presentation.Controllers.Proxies.Exceptions;
-using BitContainer.Presentation.Controllers.Proxies.Requests;
+using BitContainer.Shared.Http.Exceptions;
+using BitContainer.Shared.Http.Requests;
 
 namespace BitContainer.Shared.Http
 {
@@ -46,7 +45,7 @@ namespace BitContainer.Shared.Http
 
             await HttpHelper.Request(requestBuilder, (response) =>
             {
-                try
+                try 
                 {
                     response.EnsureSuccessStatusCode();
                 }

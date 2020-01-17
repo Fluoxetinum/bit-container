@@ -14,7 +14,7 @@ namespace BitContainer.DataAccess.Queries.Add
         
         private static readonly String QueryString =
             $"INSERT INTO {DbNames.Shares} " +
-            $"({DbNames.Shares.PersonApprovedId}, " +
+            $"({DbNames.Shares.UserApprovedId}, " +
             $"{DbNames.Shares.AccessTypeId}, " +
             $"{DbNames.Shares.EntityId}) " +
             $"VALUES " +

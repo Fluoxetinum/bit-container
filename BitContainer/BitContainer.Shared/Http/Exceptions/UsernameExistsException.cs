@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BitContainer.Presentation.Controllers.Proxies.Exceptions
+namespace BitContainer.Shared.Http.Exceptions
 {
     public class UsernameExistsException : Exception
     {

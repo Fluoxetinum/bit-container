@@ -14,7 +14,7 @@ namespace BitContainer.DataAccess.Queries.Share
         private static readonly String QueryString = 
             $"DELETE FROM {DbNames.Shares} " +
             $"WHERE {DbNames.Shares.EntityId} = @{nameof(DirId)} " +
-            $"AND {DbNames.Shares.PersonApprovedId} = @{nameof(PersonId)};";
+            $"AND {DbNames.Shares.UserApprovedId} = @{nameof(PersonId)};";
 
         public RemoveShareQuery(Guid dirId, Guid personId)
         {

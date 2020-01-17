@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
-using BitContainer.Presentation.Controllers.Proxies.Requests;
 using BitContainer.Presentation.Models;
 using BitContainer.Shared.Http;
 using BitContainer.Shared.Http.Requests;

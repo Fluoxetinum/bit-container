@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using BitContainer.Presentation.Controllers.Proxies.Requests;
+using BitContainer.Shared.Http.Requests;
 using Newtonsoft.Json;
 
 namespace BitContainer.Shared.Http

@@ -5,10 +5,8 @@ using System.Net.Http;
 using System.Text;
 using BitContainer.Contracts.V1;
 using BitContainer.LogService.Models;
-using BitContainer.Presentation.Controllers.Proxies;
-using BitContainer.Presentation.Controllers.Proxies.Exceptions;
-using BitContainer.Presentation.Controllers.Proxies.Requests;
 using System.Threading.Tasks;
+using BitContainer.Shared.Http.Requests;
 
 namespace BitContainer.Shared.Http
 {

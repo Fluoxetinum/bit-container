@@ -11,7 +11,5 @@ namespace BitContainer.DataAccess.DataProviders.Interfaces
 
         Int32 AddNewUser(String name, Byte[] passwordHash, Byte[] salt);
         Int32 RemoveUser(Guid id);
-
-        CUserStats GetStats(Guid id);
     } 
 }

@@ -1,32 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Auth;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
-using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Models;
-using BitContainer.Presentation.Controllers.Proxies;
-using BitContainer.Presentation.Controllers.Proxies.Exceptions;
+using BitContainer.Shared.Auth;
 using BitContainer.Shared.Http;
+using BitContainer.Shared.Http.Exceptions;
 using BitContainer.StorageService.Helpers;
 using BitContainer.StorageService.Managers;
-using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 
 namespace BitContainer.StorageService.Controllers
@@ -38,9 +29,11 @@ namespace BitContainer.StorageService.Controllers
         private readonly IStorageProvider _storage;
         private readonly ILogger<StorageController> _logger;
 
-        public Guid UserId => new Guid(User.Identity.Name);
+        public Guid UserId => new Guid(User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
 
-        public StorageController(IStorageProvider storageProvider, ILogger<StorageController> logger)
+        public StorageController(
+            IStorageProvider storageProvider, 
+            ILogger<StorageController> logger)
         {
             _storage = storageProvider;
             _logger = logger;
@@ -114,8 +107,8 @@ namespace BitContainer.StorageService.Controllers
             
             ERestrictedAccessType restrictedAccessToShare = newShare.AccessTypeContract.ToAccessType();
 
-            CUser fileOwner = _storage.Shares.GetStorageEntityOwner(newShare.StorageEntity.Id);
-            if (fileOwner.Id != UserId) return Unauthorized();
+            Guid fileOwnerId = _storage.Shares.GetStorageEntityOwner(newShare.StorageEntity.Id);
+            if (fileOwnerId != UserId) return Unauthorized();
             
             CShare fShare = _storage.Shares.GetStorageEntityShare(user.Id, newShare.StorageEntity.Id);
             

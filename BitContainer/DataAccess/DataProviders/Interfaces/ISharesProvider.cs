@@ -9,7 +9,7 @@ namespace BitContainer.DataAccess.DataProviders.Interfaces
     {
         ERestrictedAccessType CheckStorageEntityAccess(Guid entityId, Guid userId);
 
-        CUser GetStorageEntityOwner(Guid entityId);
+        Guid GetStorageEntityOwner(Guid entityId);
 
         Boolean IsStorageEntityHasShare(Guid entityId);
 

@@ -1,27 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
+using BitContainer.Contracts.V1.Auth;
 using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Models;
-using BitContainer.Presentation.Controllers.Proxies;
-using BitContainer.Presentation.Controllers.Proxies.Exceptions;
-using BitContainer.Presentation.Controllers.Proxies.Requests;
-using BitContainer.Shared;
-using BitContainer.Shared.Auth;
 using BitContainer.Shared.Http;
-using BitContainer.Shared.Middleware;
-using Microsoft.AspNetCore.Http;
+using BitContainer.Shared.Http.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace BitContainer.StorageService.Controllers
 {
@@ -29,6 +15,13 @@ namespace BitContainer.StorageService.Controllers
     [ApiController]
     public class UsersProxyController : ControllerBase
     {
+        private readonly IStatsProvider _statsProvider;
+
+        public UsersProxyController(IStatsProvider statsProvider)
+        {
+            _statsProvider = statsProvider;
+        }
+
         [HttpPost]
         [Route("register")]
         public async Task<ActionResult> Register(CCredentialsContract credentials)
@@ -38,6 +31,8 @@ namespace BitContainer.StorageService.Controllers
             try
             {
                 await AuthServiceProxy.RegisterRequest(credentials);
+                CUserContract user = await AuthServiceProxy.GetUserWithName(credentials.UserName);
+                _statsProvider.AddNewStats(user.Id);
             }
             catch (UsernameExistsException e)
             {
@@ -57,6 +52,8 @@ namespace BitContainer.StorageService.Controllers
             try
             {
                 contract = await AuthServiceProxy.LogInRequest(credentials);
+                CUserStats stats = _statsProvider.GetStats(contract.User.Id);
+                contract.Stats = new CStatsContract(stats.FilesCount, stats.DirsCount, stats.StorageSize);
             }
             catch (NoSuchUserException e)
             {

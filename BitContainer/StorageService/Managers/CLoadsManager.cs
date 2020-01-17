@@ -177,10 +177,10 @@ namespace BitContainer.StorageService.Managers
                         byte[] ownerIdBytes = await ReadFromNetwork(networkStream, _guidSize);
                         Guid ownerId = new Guid(Encoding.UTF8.GetString(ownerIdBytes));
                         
-                        CUser owner = storage.Shares.GetStorageEntityOwner(parentId);
-                        if (owner != null)
+                        Guid realOwnerId = storage.Shares.GetStorageEntityOwner(parentId);
+                        if (realOwnerId != Guid.Empty)
                         {
-                            ownerId = owner.Id;
+                            ownerId = realOwnerId;
                         }
                         
                         byte[] fileSizeBytes = await ReadFromNetwork(networkStream, sizeof(Int32));
