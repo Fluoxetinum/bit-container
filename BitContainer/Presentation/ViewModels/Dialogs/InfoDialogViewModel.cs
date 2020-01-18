@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using BitContainer.Presentation.ViewModels.Nodes;
 
 namespace BitContainer.Presentation.ViewModels.Dialogs
 {

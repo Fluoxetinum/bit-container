@@ -5,7 +5,7 @@ using BitContainer.Presentation.Icons;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Base;
 
-namespace BitContainer.Presentation.ViewModels
+namespace BitContainer.Presentation.ViewModels.Nodes
 {
     public class CFileSystemNode : ViewModelBase
     {

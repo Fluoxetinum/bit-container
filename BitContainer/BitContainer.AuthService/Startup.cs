@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
+using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Scripts;
 using BitContainer.Shared.Auth;
 using BitContainer.Shared.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,15 +46,14 @@ namespace BitContainer.AuthService
                     options.TokenValidationParameters = AuthOptions.GetTokenValidationParameters();
                 });
             
-            services.AddSingleton<IUsersProvider, CUsersProvider>();
-
             String sqlServerConnectionString = 
                 Configuration.GetConnectionString("SqlServerDbConnectionString");
 
-            String initScriptPath =
-                Configuration.GetConnectionString("InitScriptPath");
-            
-            CDbHelper.Init(sqlServerConnectionString, initScriptPath, "BITCONTAINER_AUTH_DB");
+            T4AuthDbInitScript script = new T4AuthDbInitScript(DbNames.AuthDbName);
+            services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
+                new CSqlDbHelper(sqlServerConnectionString, script));
+
+            services.AddSingleton<IUsersProvider, CUsersProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

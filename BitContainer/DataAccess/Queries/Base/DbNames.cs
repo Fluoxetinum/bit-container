@@ -7,11 +7,16 @@ namespace BitContainer.DataAccess.Queries.Base
 {
     public class DbNames
     {
+        public static string LogsDbName => "BITCONTAINER_LOGS_DB";
+        public static string StorageDbName => "BITCONTAINER_STORAGE_DB";
+        public static string AuthDbName => "BITCONTAINER_AUTH_DB";
+
         public static AccessTypesTableNames AccessTypes { get; } = new AccessTypesTableNames();
         public static EntitiesTableNames Entities { get; } = new EntitiesTableNames();
         public static SharesTableNames Shares { get; } = new SharesTableNames();
         public static StatsTableNames Stats { get; } = new StatsTableNames();
         public static UsersTableNames Users { get; } = new UsersTableNames();
+        public static LogsTableName Logs { get; } = new LogsTableName();
 
         public static GetShareByIdSpNames GetShareById { get; } = new GetShareByIdSpNames();
         public static GetOwnerDirChildrenSpNames GetOwnerDirChildren { get; } = new GetOwnerDirChildrenSpNames();
@@ -19,9 +24,6 @@ namespace BitContainer.DataAccess.Queries.Base
         public static GetSharedRootChildrenSpNames GetSharedRootChildren { get; } = new GetSharedRootChildrenSpNames();
         public static RemoveDirSpNames RemoveDir { get; } = new RemoveDirSpNames();
         public static GetAllDirChildrenSpNames GetAllDirChildren { get; } = new GetAllDirChildrenSpNames();
-        public static SearchOwnByNameSpNames SearchOwnByName { get; } = new SearchOwnByNameSpNames();
-        public static SearchSharedByNameSpNames SearchSharedByName { get; } = new SearchSharedByNameSpNames();
-        public static SearchSharedRootByNameSpNames SearhcSharedRootByName { get; } = new SearchSharedRootByNameSpNames();
 
         #region Tables
 
@@ -73,6 +75,15 @@ namespace BitContainer.DataAccess.Queries.Base
             public String Salt => $"{EntityName}.Salt";
         }
 
+        public class LogsTableName : DbEntityName
+        {
+            public LogsTableName() : base(entityName:"Logs"){}
+
+            public String LogLevel => $"{EntityName}.LogLevel";
+            public String Message => $"{EntityName}.Message";
+            public String Exception => $"{EntityName}.Exception";
+        }
+
         #endregion
 
         #region StoredProcedures
@@ -122,30 +133,6 @@ namespace BitContainer.DataAccess.Queries.Base
         {
             public GetAllDirChildrenSpNames() : base(entityName:"[sp_GetAllDirChildren]"){}
             public String DirId => "DirID";
-        }
-
-        public class SearchOwnByNameSpNames : DbEntityName
-        {
-            public SearchOwnByNameSpNames() : base(entityName:"[sp_SearchOwnByName]"){}
-            public String Pattern => "Pattern";
-            public String UserId => "UserID";
-            public String ParentId => "ParentID";
-        }
-
-        public class SearchSharedByNameSpNames : DbEntityName
-        {
-            public SearchSharedByNameSpNames() : base(entityName: "[sp_SearchSharedByName]") {}
-            public String Pattern => "Pattern";
-            public String UserId => "UserID";
-            public String ParentId => "ParentID";
-            public String ParentAccess => "ParentAccess";
-        }
-
-        public class SearchSharedRootByNameSpNames : DbEntityName
-        {
-            public SearchSharedRootByNameSpNames() : base(entityName: "[sp_SearchSharedRootByName]") {}
-            public String UserId => "UserID";
-            public String Pattern => "Pattern";
         }
 
         #endregion

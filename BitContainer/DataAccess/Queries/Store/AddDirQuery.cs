@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Data.Sql;
 using System.Data.SqlClient;
 using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Queries.Base;
 
-namespace BitContainer.DataAccess.Queries
+namespace BitContainer.DataAccess.Queries.Store
 {
     class AddDirQuery : AbstractWriteQuery
     {

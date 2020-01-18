@@ -8,6 +8,7 @@ using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
 using BitContainer.Presentation.Controllers.Proxies;
+using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.Helpers;
 using BitContainer.Presentation.Icons;
 using BitContainer.Presentation.Models;

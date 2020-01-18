@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
 
-namespace BitContainer.LogService.Models
+namespace BitContainer.Contracts.V1
 {
     public class CNlogMessageContract
     {

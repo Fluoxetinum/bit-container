@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BitContainer.Contracts.V1
+namespace BitContainer.Contracts.V1.Storage
 {
     public interface IStorageEntityContract
     {

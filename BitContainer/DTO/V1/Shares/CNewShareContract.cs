@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BitContainer.Contracts.V1.Shares;
+using BitContainer.Contracts.V1.Storage;
 
-namespace BitContainer.Contracts.V1
+namespace BitContainer.Contracts.V1.Shares
 {
     public class CNewShareContract
     {

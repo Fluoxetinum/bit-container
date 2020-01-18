@@ -7,8 +7,8 @@ namespace BitContainer.DataAccess.DataProviders.Interfaces
 {
     public interface IStorageProvider
     {
-        IStorageEntitiesProvider StorageEntities { get; set; }
-        ISharesProvider Shares { get; set; }
+        IStorageEntitiesProvider StorageEntities { get; }
+        ISharesProvider Shares { get; }
 
         List<CSearchResult> SearchOwnEntitiesByName(String pattern, Guid parentId, Guid ownerId);
         List<CSearchResult> SearchRestrictedEntitiesByName(String pattern, Guid parentId, Guid ownerId);

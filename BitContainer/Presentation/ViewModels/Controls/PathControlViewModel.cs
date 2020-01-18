@@ -8,6 +8,7 @@ using BitContainer.Presentation.Controllers;
 using BitContainer.Presentation.Controllers.EventParams;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
+using BitContainer.Presentation.ViewModels.Nodes;
 
 namespace BitContainer.Presentation.ViewModels.Controls
 {

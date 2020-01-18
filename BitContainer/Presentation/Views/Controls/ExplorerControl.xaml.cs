@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
-namespace BitContainer.Presentation.Views
+namespace BitContainer.Presentation.Views.Controls
 {
     /// <summary>
     /// Interaction logic for ExplorerControl.xaml

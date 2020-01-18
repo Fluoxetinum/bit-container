@@ -7,7 +7,6 @@ using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Models;
 using BitContainer.DataAccess.Queries;
 using BitContainer.DataAccess.Queries.Base;
-using BitContainer.DataAccess.Queries.Get;
 using BitContainer.DataAccess.Queries.Share;
 using BitContainer.DataAccess.Queries.Stats;
 using BitContainer.DataAccess.Queries.Store;
@@ -16,17 +15,24 @@ namespace BitContainer.DataAccess.DataProviders
 {
     public class CStorageEntitiesProvider : IStorageEntitiesProvider
     {
+        private readonly ISqlDbHelper _dbHelper;
+
+        public CStorageEntitiesProvider(ISqlDbHelper dbHelper)
+        {
+            _dbHelper = dbHelper;
+        }
+
         public List<COwnStorageEntity> GetOwnerChildren(Guid parentDirectoryId, Guid ownerId)
         {
             var query = new GetOwnerChildrenQuery(parentDirectoryId, ownerId);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public List<CRestrictedStorageEntity> GetSharedChildren(Guid parentDirectoryId, Guid userId)
         {
             List<CRestrictedStorageEntity> result = new List<CRestrictedStorageEntity>();
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
             {
                 if (parentDirectoryId.IsRootDir())
                 {
@@ -54,20 +60,20 @@ namespace BitContainer.DataAccess.DataProviders
         public CDirectory GetDir(Guid parentId, Guid userId, string name)
         {
             var query = new GetDirQuery(parentId, userId, name);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public CDirectory GetDir(Guid id)
         {
             var query = new GetDirByIdQuery(id);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public CDirectory AddDir(Guid parentId, Guid userId, String name)
         {
             CDirectory result = null;
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
              {
                  Guid ownerId = userId;
 
@@ -98,14 +104,14 @@ namespace BitContainer.DataAccess.DataProviders
         public Int32 RenameEntity(Guid id, string name)
         {
             var query = new RenameEntityQuery(id, name);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public Int32 DeleteDir(Guid id)
         {
             Int32 result = -1;
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
              {
                  var dirQuery = new GetDirByIdQuery(id);
                  CDirectory dir = dirQuery.Execute(command);
@@ -128,7 +134,7 @@ namespace BitContainer.DataAccess.DataProviders
         {
             Dictionary<Int32, List<IStorageEntity>> result = new Dictionary<int, List<IStorageEntity>>();
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
             {
                 var dirQuery = new GetDirByIdQuery(dirId);
                 CDirectory dir = dirQuery.Execute(command);
@@ -170,7 +176,7 @@ namespace BitContainer.DataAccess.DataProviders
         {
             Int32 result = -1;
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
              {
                  CopyDirTransaction(command, id, copierId, newParentId);
              });
@@ -257,26 +263,26 @@ namespace BitContainer.DataAccess.DataProviders
         public Byte[] GetAllFileData(Guid fileId)
         {
             var query = new GetAllFileDataQuery(fileId);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public CFile GetFile(Guid parentId, Guid getterId, String name)
         {
             var query = new GetFileQuery(parentId, getterId, name);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public CFile GetFile(Guid id)
         {
             var query = new GetFileByIdQuery(id);
-            return CDbHelper.ExecuteQuery(query);
+            return _dbHelper.ExecuteQuery(query);
         }
 
         public CFile AddFile(Guid parentId, Guid adderId, String name, Byte[] data)
         {
             CFile result = null;
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
             {
                 Guid ownerId = adderId;
 
@@ -312,7 +318,7 @@ namespace BitContainer.DataAccess.DataProviders
         {
             Int32 result = -1;
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
             {
                 var fileQuery = new GetFileByIdQuery(id);
                 CFile file = fileQuery.Execute(command);
@@ -337,7 +343,7 @@ namespace BitContainer.DataAccess.DataProviders
         {
             Int32 result = -1;
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
+            _dbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
             {
                 var fileQuery = new GetFileByIdQuery(id);
                 CFile file = fileQuery.Execute(command);

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using BitContainer.Presentation.Controllers.EventParams;
-using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels;
-using BitContainer.Presentation.ViewModels.Base;
-using BitContainer.Presentation.ViewModels.Jobs;
+using BitContainer.Presentation.ViewModels.Nodes;
 
-namespace BitContainer.Presentation.Controllers
+namespace BitContainer.Presentation.Controllers.Ui
 {
     public class FileSystemEventsController
     {

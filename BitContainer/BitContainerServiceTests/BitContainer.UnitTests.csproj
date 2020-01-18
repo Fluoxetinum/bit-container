@@ -33,13 +33,4 @@
     <ProjectReference Include="..\StorageService\BitContainer.StorageService.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="JsonServiceResponses\AllTiers.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="JsonServiceResponses\OneTier.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

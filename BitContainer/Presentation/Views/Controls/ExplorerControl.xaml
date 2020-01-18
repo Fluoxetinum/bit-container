@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="BitContainer.Presentation.Views.ExplorerControl"
+﻿<UserControl x:Class="BitContainer.Presentation.Views.Controls.ExplorerControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -10,10 +10,11 @@
              xmlns:mdesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:conv="clr-namespace:BitContainer.Presentation.Converters"
              xmlns:help="clr-namespace:BitContainer.Presentation.Helpers"
+             xmlns:controls="clr-namespace:BitContainer.Presentation.ViewModels.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" 
              d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance Type=vm:ExplorerControlViewModel}"
+             d:DataContext="{d:DesignInstance Type=controls:ExplorerControlViewModel}"
              x:Name="ThisUserControl">
     <UserControl.Resources>
         <conv:StorageEntityIconConverter x:Key="EntityIconConverter"></conv:StorageEntityIconConverter>
@@ -131,7 +132,8 @@
                                         Height="80">
                                             <mdesign:Card.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="Edit" 
+                                                    <!-- TODO: Implement editing. -->
+                                                    <!--<MenuItem Header="Edit" 
                                                               Visibility="{Binding AccessWrapper,
                                                         Converter={StaticResource FileTypeVisibleConverter},
                                                         ConverterParameter='.txt'}"
@@ -141,7 +143,7 @@
                                                             <mdesign:PackIcon Kind="Edit" 
                                                                               Foreground="{DynamicResource PrimaryHueMidBrush}"></mdesign:PackIcon>
                                                         </MenuItem.Icon>
-                                                    </MenuItem>
+                                                    </MenuItem>-->
                                                     <MenuItem Header="Open" 
                                                               Visibility="{Binding AccessWrapper, 
                                                         Converter={StaticResource DirectoryVisibleConverter}}"

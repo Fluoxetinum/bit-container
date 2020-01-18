@@ -6,7 +6,7 @@ using BitContainer.DataAccess.Mappers;
 
 namespace BitContainer.DataAccess.Queries.Base
 {
-    public abstract class AbstractReadQuery<T> : IQuery<List<T>>
+    public abstract class AbstractReadQuery<T> : ISqlQuery<List<T>>
     {
         public IMapper<T> Mapper { get; set; }
 

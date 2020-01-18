@@ -7,20 +7,20 @@ using System.Windows;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
 using BitContainer.Presentation.Controllers.EventParams;
+using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.Icons;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
-using BitContainer.Presentation.ViewModels.Controls;
 using BitContainer.Presentation.ViewModels.Dialogs;
 using BitContainer.Presentation.ViewModels.Enums;
+using BitContainer.Presentation.ViewModels.Nodes;
 using BitContainer.Presentation.Views;
 using BitContainer.Presentation.Views.Dialogs;
-using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 
-namespace BitContainer.Presentation.ViewModels
+namespace BitContainer.Presentation.ViewModels.Controls
 {
     public class ExplorerControlViewModel : NavigatableViewModelBase, IDisposable
     {
@@ -384,7 +384,7 @@ namespace BitContainer.Presentation.ViewModels
 
         public void Edit(CFileSystemNode node)
         {
-            ToEditPage();
+            //TODO: Implement Editing
         }
 
         private ICommand _shareCommand;

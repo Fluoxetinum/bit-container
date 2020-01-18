@@ -15,6 +15,7 @@ using BitContainer.Shared.Http;
 using BitContainer.Shared.Http.Exceptions;
 using BitContainer.StorageService.Helpers;
 using BitContainer.StorageService.Managers;
+using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,15 +27,18 @@ namespace BitContainer.StorageService.Controllers
     [ApiController]
     public class StorageController : ControllerBase
     {
+        private readonly ILoadsManager _loadsManager;
         private readonly IStorageProvider _storage;
         private readonly ILogger<StorageController> _logger;
 
         public Guid UserId => new Guid(User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
 
         public StorageController(
+            ILoadsManager loadsManager,
             IStorageProvider storageProvider, 
             ILogger<StorageController> logger)
         {
+            _loadsManager = loadsManager;
             _storage = storageProvider;
             _logger = logger;
         }
@@ -239,14 +243,14 @@ namespace BitContainer.StorageService.Controllers
         [HttpGet("upload_endpoint")]
         public ActionResult<CTransmissionEndPointContract> GetEndPointToUploadFile() 
         {
-            return CLoadsManager.GetEndPointToUpload();
+            return _loadsManager.GetEndPointToUpload();
         }
 
         [Authorize]
         [HttpGet("download_endpoint")]
         public  ActionResult<CTransmissionEndPointContract> GetEndPointToLoadFile()
         {
-            return CLoadsManager.GetEndPointToDownload();
+            return _loadsManager.GetEndPointToDownload();
         }
     }
 }

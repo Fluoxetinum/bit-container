@@ -1,12 +1,14 @@
+<#@ template language="C#" #>
+
 USE [master]
 
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'BITCONTAINER_AUTH_DB')
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '<#= DbName #>')
 BEGIN
-	CREATE DATABASE BITCONTAINER_AUTH_DB;
+	CREATE DATABASE <#= DbName #>;
 END
 GO
 
-USE BITCONTAINER_AUTH_DB;
+USE <#= DbName #>;
 
 IF NOT EXISTS (SELECT * FROM sysobjects where name='Users')
 BEGIN

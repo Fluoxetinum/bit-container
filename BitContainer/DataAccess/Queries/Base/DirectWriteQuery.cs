@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Data.Sql;
 using System.Data.SqlClient;
-using BitContainer.DataAccess.Queries.Base;
 
-namespace BitContainer.DataAccess.Queries
+namespace BitContainer.DataAccess.Queries.Base
 {
     public class DirectWriteQuery : AbstractWriteQuery
     {

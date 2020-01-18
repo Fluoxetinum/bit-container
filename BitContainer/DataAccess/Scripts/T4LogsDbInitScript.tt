@@ -1,12 +1,14 @@
+<#@ template language="C#" #>
+
 USE [master]
 
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'BITCONTAINER_LOGS_DB')
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '<#= DbName #>')
 BEGIN
-	CREATE DATABASE BITCONTAINER_LOGS_DB;
+	CREATE DATABASE <#= DbName #>;
 END
 GO
 
-USE BITCONTAINER_LOGS_DB;
+USE <#= DbName #>;
 
 IF NOT EXISTS (SELECT * FROM sysobjects where name='Logs')
 BEGIN

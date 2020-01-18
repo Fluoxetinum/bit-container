@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.DataAccess", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Contracts", "DTO\BitContainer.Contracts.csproj", "{CE4B541E-0682-4F2C-A6E4-04833A5B41AF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Tests", "BitContainerServiceTests\BitContainer.Tests.csproj", "{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.UnitTests", "BitContainerServiceTests\BitContainer.UnitTests.csproj", "{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Shared", "BitContainer.Shared\BitContainer.Shared.csproj", "{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}"
 EndProject
@@ -20,6 +20,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.LogService", "BitContainer.LogService\BitContainer.LogService.csproj", "{DAC073ED-01A4-4F1D-B12A-4E87695271C3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{BA208C65-DC67-4861-9BF9-2CE9D0F82C25}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9D788626-075F-4C4E-A1CE-2D4560817139}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitContainer.IntegrationTests", "BitContainer.IntegrationTests\BitContainer.IntegrationTests.csproj", "{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,14 +63,20 @@ Global
 		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAC073ED-01A4-4F1D-B12A-4E87695271C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{095DD824-10BF-4AC4-A758-92AB7412284E} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
+		{AAC52B57-EBEF-48D0-8129-BE05F87DCF0C} = {9D788626-075F-4C4E-A1CE-2D4560817139}
 		{D19CC465-F2D4-40B7-963F-D3F129269AF8} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
 		{DAC073ED-01A4-4F1D-B12A-4E87695271C3} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
+		{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35} = {9D788626-075F-4C4E-A1CE-2D4560817139}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0594528C-647B-40F2-A00D-1DF05C606E3D}

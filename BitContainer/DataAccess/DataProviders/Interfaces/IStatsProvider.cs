@@ -9,5 +9,6 @@ namespace BitContainer.DataAccess.DataProviders.Interfaces
     {
         Int32 AddNewStats(Guid id);
         CUserStats GetStats(Guid id);
+        Int32 RemoveStats(Guid id);
     }
 }

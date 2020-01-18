@@ -1,12 +1,13 @@
-﻿<UserControl x:Class="BitContainer.Presentation.Views.MenuControl"
+﻿<UserControl x:Class="BitContainer.Presentation.Views.Controls.MenuControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:BitContainer.Presentation.Views"
              xmlns:vm="clr-namespace:BitContainer.Presentation.ViewModels"
+             xmlns:controls="clr-namespace:BitContainer.Presentation.ViewModels.Controls"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=vm:MenuControlViewModel}"
+             d:DataContext="{d:DesignInstance Type=controls:MenuControlViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="5">
         <Grid.ColumnDefinitions>

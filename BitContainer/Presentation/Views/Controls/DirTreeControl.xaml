@@ -8,9 +8,10 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:conv="clr-namespace:BitContainer.Presentation.Converters"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:controls="clr-namespace:BitContainer.Presentation.ViewModels.Controls"
              Background="{DynamicResource MaterialDesignBackground}"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=vm:DirTreeControlViewModel}"
+             d:DataContext="{d:DesignInstance Type=controls:DirTreeControlViewModel}"
              d:DesignHeight="450" d:DesignWidth="400"
              Loaded="DirTreeControl_OnLoaded"
              Unloaded="DirTreeControl_OnUnloaded">

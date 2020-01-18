@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
+using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Scripts;
 using BitContainer.Shared.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,15 +36,14 @@ namespace BitContainer.LogService
                 options.SerializerSettings.TypeNameHandling = TypeNameHandling.All;
             });
 
-            services.AddSingleton<ILogsProvider, CLogsProvider>();
-
             String sqlServerConnectionString = 
                 Configuration.GetConnectionString("SqlServerDbConnectionString");
-            String initScriptPath =
-                Configuration.GetConnectionString("InitScriptPath");
-            
-            CDbHelper.Init(sqlServerConnectionString, initScriptPath,"BITCONTAINER_LOGS_DB");
-            
+
+            T4LogsDbInitScript script = new T4LogsDbInitScript(DbNames.LogsDbName);
+            services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
+                new CSqlDbHelper(sqlServerConnectionString, script));
+
+            services.AddSingleton<ILogsProvider, CLogsProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

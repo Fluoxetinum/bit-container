@@ -13,8 +13,10 @@ namespace BitContainer.DataAccess.Queries
         public String Message { get; set; }
         public String Exception { get; set; }
 
-        private static readonly String QueryString = $"INSERT INTO Logs (LogLevel, Message, Exception) " +
-                                      $"VALUES (@{nameof(Level)}, @{nameof(Message)}, @{nameof(Exception)});";
+        private static readonly String QueryString = 
+            $"INSERT INTO {DbNames.Logs} " +
+            $"({DbNames.Logs.LogLevel}, {DbNames.Logs.Message}, {DbNames.Logs.Exception}) " +
+            $"VALUES (@{nameof(Level)}, @{nameof(Message)}, @{nameof(Exception)});";
 
         public CLogQuery(String level, String message, String exception)
         {

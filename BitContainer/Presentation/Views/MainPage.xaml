@@ -26,14 +26,14 @@
             <RowDefinition Height="*" MinHeight="40"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <views:MenuControl Grid.Row="0" 
+        <controls:MenuControl Grid.Row="0" 
                            Grid.Column="0" 
                            Grid.ColumnSpan="3"
                            Margin="1">
-            <views:MenuControl.DataContext>
+            <controls:MenuControl.DataContext>
                 <Binding Path="Menu"></Binding>
-            </views:MenuControl.DataContext>
-        </views:MenuControl>
+            </controls:MenuControl.DataContext>
+        </controls:MenuControl>
 
         <controls:DirTreeControl Grid.Row="1"
                               Grid.Column="0"
@@ -57,19 +57,19 @@
                       ShowsPreview="False">
         </GridSplitter>
         
-        <views:ExplorerControl Grid.Row="1" 
+        <controls:ExplorerControl Grid.Row="1" 
                                Grid.RowSpan="3"
                                Grid.Column="2" 
                                Margin="1,1,3,3">
-            <views:ExplorerControl.DataContext>
+            <controls:ExplorerControl.DataContext>
                 <Binding Path="Explorer"></Binding>
-            </views:ExplorerControl.DataContext>
-            <views:ExplorerControl.Effect>
+            </controls:ExplorerControl.DataContext>
+            <controls:ExplorerControl.Effect>
                 <DropShadowEffect BlurRadius="5"
                                   Opacity="0.5"
                                   ShadowDepth="0"></DropShadowEffect>
-            </views:ExplorerControl.Effect>
-        </views:ExplorerControl>
+            </controls:ExplorerControl.Effect>
+        </controls:ExplorerControl>
 
         <GridSplitter Grid.Row="2" 
                       Grid.Column="0"
@@ -78,17 +78,17 @@
                       VerticalAlignment="Center"
                       ShowsPreview="False"/>
 
-        <views:LoadsPanel Grid.Row="3"
+        <controls:LoadsPanel Grid.Row="3"
                           Grid.Column="0"
                           Margin="3,1,1,3">
-            <views:LoadsPanel.DataContext>
+            <controls:LoadsPanel.DataContext>
                 <Binding Path="LoadsPanel"></Binding>
-            </views:LoadsPanel.DataContext>
-            <views:LoadsPanel.Effect>
+            </controls:LoadsPanel.DataContext>
+            <controls:LoadsPanel.Effect>
                 <DropShadowEffect BlurRadius="5"
                                   Opacity="0.5"
                                   ShadowDepth="0"></DropShadowEffect>
-            </views:LoadsPanel.Effect>
-        </views:LoadsPanel>
+            </controls:LoadsPanel.Effect>
+        </controls:LoadsPanel>
     </Grid>
 </Page>

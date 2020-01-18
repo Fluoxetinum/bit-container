@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
+using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.ViewModels.Commands;
 using Microsoft.Xaml.Behaviors;
 
@@ -35,11 +36,6 @@ namespace BitContainer.Presentation.ViewModels.Base
         public void ToMainPage()
         {
             NavigationController.GoToMainPage();
-        }
-
-        public void ToEditPage()
-        {
-            NavigationController.GoToEditPage();
         }
 
 

@@ -5,7 +5,7 @@ using BitContainer.DataAccess.Mappers;
 using BitContainer.DataAccess.Models;
 using BitContainer.DataAccess.Queries.Base;
 
-namespace BitContainer.DataAccess.Queries.Get
+namespace BitContainer.DataAccess.Queries.Store
 {
     class GetFileQuery : AbstractScalarQuery<CFile>
     {

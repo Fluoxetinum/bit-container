@@ -6,9 +6,6 @@ namespace BitContainer.Shared.Auth
 {
     public class AuthOptions
     {
-
-
-
         public const String Issuer = "MyAuthServer";
         public const String Audience = "http://localhost:53833";
         private const String Key = "mysupersecret_secretkey!1234";
@@ -33,7 +30,5 @@ namespace BitContainer.Shared.Auth
                 ClockSkew = TimeSpan.Zero
             };
         }
-
-
     }
 }

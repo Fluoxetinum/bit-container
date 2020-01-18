@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using BitContainer.Presentation.ViewModels.Base;
 
-namespace BitContainer.Presentation.ViewModels
+namespace BitContainer.Presentation.ViewModels.Nodes
 {
     public class DirTreeNode : ViewModelBase
     {

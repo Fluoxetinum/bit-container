@@ -5,7 +5,7 @@ using BitContainer.DataAccess.Mappers;
 
 namespace BitContainer.DataAccess.Queries.Base
 {
-    public abstract class AbstractScalarQuery<T> : IQuery<T> 
+    public abstract class AbstractScalarQuery<T> : ISqlQuery<T> 
     {
         public IMapper<T> Mapper { get; set; }
 

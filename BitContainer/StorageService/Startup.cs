@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
+using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Scripts;
 using BitContainer.Shared.Auth;
 using BitContainer.Shared.Http;
 using BitContainer.Shared.Middleware;
@@ -48,19 +50,18 @@ namespace BitContainer.StorageService
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = AuthOptions.GetTokenValidationParameters();
                 });
-            
+
+            String sqlServerConnectionString = 
+                Configuration.GetConnectionString("SqlServerDbConnectionString");
+
+            T4StorageDbInitScript script = new T4StorageDbInitScript(DbNames.StorageDbName);
+            services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
+                new CSqlDbHelper(sqlServerConnectionString, script));
+            services.AddSingleton<ILoadsManager, CLoadsManager>();
             services.AddSingleton<IStorageProvider, CStorageProvider>();
-            services.AddSingleton<IParallelAccessManager, CReadWriteFileLock>();
             services.AddSingleton<IStatsProvider, CStatsProvider>();
             services.AddSignalR();
             
-            String sqlServerConnectionString = 
-                Configuration.GetConnectionString("SqlServerDbConnectionString");
-            String initScriptPath =
-                Configuration.GetConnectionString("InitScriptPath");
-            
-            CDbHelper.Init(sqlServerConnectionString, initScriptPath, "BITCONTAINER_STORAGE_DB");
-
             String authServiceUrl = 
                 Configuration.GetConnectionString("AuthServiceUrl");
             AuthServiceProxy.SetServiceUrl(authServiceUrl);

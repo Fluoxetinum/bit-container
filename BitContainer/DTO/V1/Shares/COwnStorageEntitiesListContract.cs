@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using BitContainer.Contracts.V1.Shares;
 
-namespace BitContainer.Contracts.V1.Storage
+namespace BitContainer.Contracts.V1.Shares
 {
     public class COwnStorageEntitiesListContract
     {

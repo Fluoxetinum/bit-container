@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
+using BitContainer.Contracts.V1.Storage;
 using BitContainer.Presentation.Controllers;
 using BitContainer.Presentation.Helpers;
 using BitContainer.Presentation.ViewModels.Base;

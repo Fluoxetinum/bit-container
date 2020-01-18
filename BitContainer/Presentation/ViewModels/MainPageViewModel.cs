@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.Controllers;
+using BitContainer.Presentation.ViewModels.Controls;
 using BitContainer.Presentation.ViewModels.Jobs;
 
 namespace BitContainer.Presentation.ViewModels

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
+using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands;
 
-namespace BitContainer.Presentation.ViewModels
+namespace BitContainer.Presentation.ViewModels.Controls
 {
     public class MenuControlViewModel : NavigatableViewModelBase
     {

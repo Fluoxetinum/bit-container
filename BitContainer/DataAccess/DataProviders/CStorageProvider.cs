@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Models;
-using BitContainer.DataAccess.Queries.Get;
 using BitContainer.DataAccess.Queries.Share;
 using BitContainer.DataAccess.Queries.Store;
 
@@ -14,20 +13,24 @@ namespace BitContainer.DataAccess.DataProviders
 {
     public class CStorageProvider : IStorageProvider
     {
-        public IStorageEntitiesProvider StorageEntities { get; set; }
-        public ISharesProvider Shares { get; set; }
+        private readonly ISqlDbHelper _sqlDbHelper;
+        public IStorageEntitiesProvider StorageEntities { get;  }
+        public ISharesProvider Shares { get; }
+        public IStatsProvider Stats { get; }
 
-        public CStorageProvider()
+        public CStorageProvider(ISqlDbHelper sqlDbHelper)
         {
-            StorageEntities = new CStorageEntitiesProvider();
-            Shares = new CSharesProvider();
+            _sqlDbHelper = sqlDbHelper;
+            StorageEntities = new CStorageEntitiesProvider(sqlDbHelper);
+            Shares = new CSharesProvider(sqlDbHelper);
+            Stats = new CStatsProvider(sqlDbHelper);
         }
 
         public List<CSearchResult> SearchOwnEntitiesByName(String pattern, Guid parentId, Guid ownerId)
         {
             List<CSearchResult> result = new List<CSearchResult>();
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            _sqlDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
             {
                 result = SearchOwnEntitiesTransaction(pattern, parentId, ownerId, command);
             });
@@ -85,8 +88,6 @@ namespace BitContainer.DataAccess.DataProviders
             }
 
             return searchResult;
-
-
         }
 
         private List<COwnStorageEntity> GetChildren(SqlCommand command, Guid parentId, Guid ownerId)
@@ -100,10 +101,10 @@ namespace BitContainer.DataAccess.DataProviders
         {
             List<CSearchResult> result = new List<CSearchResult>();
 
-            CDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
-                {
-                    result = SearchRestrictedEntitiesByNameTransaction(pattern, parentId, ownerId, command);
-                });
+            _sqlDbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
+            {
+                result = SearchRestrictedEntitiesByNameTransaction(pattern, parentId, ownerId, command);
+            });
 
             return result;
         }
@@ -194,7 +195,5 @@ namespace BitContainer.DataAccess.DataProviders
 
             return result;
         }
-
-
     }
 }

@@ -2,19 +2,17 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
 using BitContainer.Presentation.Controllers.EventParams;
 using BitContainer.Presentation.Icons;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Base;
-using BitContainer.Presentation.ViewModels.Commands;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
+using BitContainer.Presentation.ViewModels.Nodes;
 
-namespace BitContainer.Presentation.ViewModels
+namespace BitContainer.Presentation.ViewModels.Controls
 {
     public class DirTreeControlViewModel : NavigatableViewModelBase, IDisposable
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BitContainer.LogService.Models;
+using BitContainer.Contracts.V1;
 using BitContainer.Shared.Http;
 using Microsoft.AspNetCore.Mvc;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels;
+using BitContainer.Presentation.ViewModels.Nodes;
 
 namespace BitContainer.Presentation.Controllers.EventParams
 {

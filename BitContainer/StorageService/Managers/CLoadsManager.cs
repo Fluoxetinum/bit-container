@@ -9,12 +9,14 @@ using System.Text;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Storage;
+using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.Models;
+using BitContainer.StorageService.Managers.Interfaces;
 
 namespace BitContainer.StorageService.Managers
 {
-    public static class CLoadsManager
+    public class CLoadsManager : ILoadsManager
     {
         // TODO : This class need refactoring (Andrey Gurin)
         // TODO : Implement connections management (Andrey Gurin)
@@ -22,33 +24,29 @@ namespace BitContainer.StorageService.Managers
         // TODO : Add more complex reaction to the exception (Andrey Gurin)  
         // TODO : Big files (read/write stream to db)
 
-        private static readonly CTransmissionEndPointContract UploadEndPoint =
+        private readonly ISqlDbHelper _dbHelper;
+
+        private readonly CTransmissionEndPointContract _uploadEndPoint =
             CTransmissionEndPointContract.Create(IPAddress.Loopback, 20000);
-        private static readonly CTransmissionEndPointContract DownloadEndPoint =
+        private readonly CTransmissionEndPointContract _downloadEndPoint =
             CTransmissionEndPointContract.Create(IPAddress.Loopback, 20001);
 
-        public static CTransmissionEndPointContract GetEndPointToUpload()
-        {
-            return UploadEndPoint;
-        }
+        public CTransmissionEndPointContract GetEndPointToUpload() => _uploadEndPoint;
+        public CTransmissionEndPointContract GetEndPointToDownload() => _downloadEndPoint;
 
-        public static CTransmissionEndPointContract GetEndPointToDownload()
+        public CLoadsManager(ISqlDbHelper dbHelper)
         {
-            return DownloadEndPoint;
-        }
-
-        static CLoadsManager()
-        {
+            _dbHelper = dbHelper;
             InitDownload();
             InitUpload();
         }
         
-        public static void InitDownload()
+        private void InitDownload()
         {
             Task.Run(async () =>
             {
-                TcpListener listener = new TcpListener(DownloadEndPoint.Address, DownloadEndPoint.Port);
-                var storage = new CStorageProvider();
+                TcpListener listener = new TcpListener(_downloadEndPoint.Address, _downloadEndPoint.Port);
+                var storage = new CStorageProvider(_dbHelper);
                 try
                 {
                     listener.Start();
@@ -92,13 +90,13 @@ namespace BitContainer.StorageService.Managers
             });
         }
 
-        public static async Task LoadFile(CStorageProvider storage, NetworkStream networkStream, Guid id)
+        private async Task LoadFile(CStorageProvider storage, NetworkStream networkStream, Guid id)
         {
              byte[] fileData = storage.StorageEntities.GetAllFileData(id);
              await networkStream.WriteAsync(fileData, 0, fileData.Length);
         }
 
-        public static async Task LoadDir(CStorageProvider storage, NetworkStream networkStream, Guid id)
+        private async Task LoadDir(CStorageProvider storage, NetworkStream networkStream, Guid id)
         {
             Dictionary<Int32, List<IStorageEntity>> children = storage.StorageEntities.GetAllChildren(id);
 
@@ -149,14 +147,14 @@ namespace BitContainer.StorageService.Managers
             await networkStream.WriteAsync(archiveBytes, 0, archiveBytes.Length);
         }
 
-        private static readonly int _guidSize = Guid.Empty.ToString().Length;
+        private readonly int _guidSize = Guid.Empty.ToString().Length;
 
-        public static void InitUpload()
+        private void InitUpload()
         {
             Task.Run(async () =>
             {
-                TcpListener listener = new TcpListener(UploadEndPoint.Address, UploadEndPoint.Port);
-                var storage = new CStorageProvider();
+                TcpListener listener = new TcpListener(_uploadEndPoint.Address, _uploadEndPoint.Port);
+                var storage = new CStorageProvider(_dbHelper);
                 try
                 {
                     listener.Start();

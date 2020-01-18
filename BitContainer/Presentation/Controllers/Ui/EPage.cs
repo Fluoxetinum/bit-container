@@ -9,7 +9,6 @@ namespace BitContainer.Presentation.Controllers.Ui
         LogIn,
         Register,
         RegisterSuccess,
-        Explorer,
-        Edit
+        Explorer
     }
 }

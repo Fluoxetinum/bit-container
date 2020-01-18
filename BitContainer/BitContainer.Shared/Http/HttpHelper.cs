@@ -60,9 +60,5 @@ namespace BitContainer.Shared.Http
 
             return response;
         }
-
-       
-
-
     }
 }

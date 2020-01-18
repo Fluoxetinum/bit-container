@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
-using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Mappers;
 using BitContainer.DataAccess.Models;
 using BitContainer.DataAccess.Queries.Base;
 
-namespace BitContainer.DataAccess.Queries.Get
+namespace BitContainer.DataAccess.Queries.Store
 {
     public class GetDirByIdQuery : AbstractScalarQuery<CDirectory>
     {

@@ -33,6 +33,5 @@ namespace BitContainer.Shared.Auth
             Byte[] hash = rfc.GetBytes(HashSize);
             return hash;
         }
-
     }
 }

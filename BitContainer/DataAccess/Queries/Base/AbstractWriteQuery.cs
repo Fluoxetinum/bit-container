@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace BitContainer.DataAccess.Queries.Base
 {
-    public abstract class AbstractWriteQuery : IQuery<Int32>
+    public abstract class AbstractWriteQuery : ISqlQuery<Int32>
     {
         public abstract SqlCommand Prepare(SqlCommand command);
 

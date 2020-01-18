@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace BitContainer.Contracts.V1
+namespace BitContainer.Contracts.V1.Auth
 {
     public class CCredentialsContract
     {

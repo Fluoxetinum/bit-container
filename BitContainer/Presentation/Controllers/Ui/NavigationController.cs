@@ -2,11 +2,10 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.ViewModels;
 using BitContainer.Presentation.Views;
 
-namespace BitContainer.Presentation.Controllers
+namespace BitContainer.Presentation.Controllers.Ui
 {
     public static class NavigationController
     {
@@ -38,11 +37,6 @@ namespace BitContainer.Presentation.Controllers
             GoTo(EPage.RegisterSuccess);
         }
 
-        public static void GoToEditPage()
-        {
-            GoTo(EPage.Edit);
-        }
-
         public static void GoTo(EPage page)
         {
             Page oldPage = (Page)_navigationService.Content;
@@ -72,10 +66,6 @@ namespace BitContainer.Presentation.Controllers
                 case EPage.Explorer:
                     newPage = new MainPage();
                     newPage.DataContext = new MainPageViewModel();
-                    break;
-                case EPage.Edit:
-                    newPage = new EditPage();
-                    newPage.DataContext = new EditPageViewModel();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(page), page, null);

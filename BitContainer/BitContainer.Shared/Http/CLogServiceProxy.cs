@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using BitContainer.Contracts.V1;
-using BitContainer.LogService.Models;
 using System.Threading.Tasks;
 using BitContainer.Shared.Http.Requests;
 

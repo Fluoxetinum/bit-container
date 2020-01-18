@@ -4,29 +4,28 @@ using System.IO;
 using System.Data.Sql;
 using BitContainer.DataAccess.Queries;
 using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Scripts;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
 namespace BitContainer.DataAccess
 {
-    public class CDbHelper
+    public class CSqlDbHelper : ISqlDbHelper
     {
-        private static String _connectionString;
+        private readonly String _connectionString;
 
-        public static void Init(String sqlServerConnectionString, String initScriptPath, String dbName)
+        public CSqlDbHelper(String sqlServerConnectionString, IT4DbInitScript initScript)
         {
-            String initScript = File.ReadAllText(initScriptPath);
-
             using (var connection = new SqlConnection(sqlServerConnectionString))
             {
                 Server server = new Server(new ServerConnection(connection));
-                server.ConnectionContext.ExecuteNonQuery(initScript);
+                server.ConnectionContext.ExecuteNonQuery(initScript.TransformText());
             }
 
-            _connectionString = $"{sqlServerConnectionString}Database={dbName}";
+            _connectionString = $"{sqlServerConnectionString}Database={initScript.DbName}";
         }
         
-        public static T ExecuteQuery<T>(IQuery<T> query)
+        public T ExecuteQuery<T>(ISqlQuery<T> query)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -36,7 +35,7 @@ namespace BitContainer.DataAccess
             }
         }
 
-        public static void ExecuteTransaction(Action<SqlCommand> executionAlgorithm)
+        public void ExecuteTransaction(Action<SqlCommand> executionAlgorithm)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
