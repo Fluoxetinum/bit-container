@@ -6,7 +6,7 @@ namespace BitContainer.Contracts.V1.Shares
 {
     public class CSearchResultContract
     {
-        public IAccessWrapperContract AccessWrapper { get; set; }
-        public  LinkedList<Guid> DownPath { get; set; }
+        public CAccessWrapperContract AccessWrapper { get; set; }
+        public LinkedList<Guid> DownPath { get; set; }
     }
 }

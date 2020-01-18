@@ -45,18 +45,18 @@ namespace BitContainer.StorageService.Controllers
         
         [Authorize]
         [HttpGet("entities/{parentId}")]
-        public ActionResult<COwnStorageEntitiesListContract> GetStorageEntities(Guid parentId)
+        public ActionResult<List<CAccessWrapperContract>> GetStorageEntities(Guid parentId)
         {
             List<COwnStorageEntity> entities = _storage.StorageEntities.GetOwnerChildren(parentId, UserId);
-            return ContractsConverter.ToOwnStorageEntitiesListContract(entities);
+            return ContractsConverter.ToOwnStorageEntityContracts(entities);
         }
 
         [Authorize]
         [HttpGet("shared_entities/{parentId}")]
-        public ActionResult<CRestrictedStorageEntitiesListContract> GetSharedStorageEntities(Guid parentId)
+        public ActionResult<List<CAccessWrapperContract>> GetSharedStorageEntities(Guid parentId)
         {
             List<CRestrictedStorageEntity> sharedEntities = _storage.StorageEntities.GetSharedChildren(parentId, UserId);
-            return ContractsConverter.ToRestrictedEntitiesListContract(sharedEntities);
+            return ContractsConverter.ToRestrictedStorageEntityContracts(sharedEntities);
         }
 
         [Authorize]
@@ -78,7 +78,7 @@ namespace BitContainer.StorageService.Controllers
         
         [Authorize]
         [HttpGet("file/{id}")]
-        public ActionResult<IAccessWrapperContract> GetFile(Guid id)
+        public ActionResult<CAccessWrapperContract> GetFile(Guid id)
         {
             ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(id, UserId);
             if (restrictedAccess.NoReadAccess()) return Unauthorized();
@@ -111,22 +111,22 @@ namespace BitContainer.StorageService.Controllers
             
             ERestrictedAccessType restrictedAccessToShare = newShare.AccessTypeContract.ToAccessType();
 
-            Guid fileOwnerId = _storage.Shares.GetStorageEntityOwner(newShare.StorageEntity.Id);
+            Guid fileOwnerId = _storage.Shares.GetStorageEntityOwner(newShare.EntityId);
             if (fileOwnerId != UserId) return Unauthorized();
             
-            CShare fShare = _storage.Shares.GetStorageEntityShare(user.Id, newShare.StorageEntity.Id);
+            CShare fShare = _storage.Shares.GetStorageEntityShare(user.Id, newShare.EntityId);
             
             if (fShare != null)
-                _storage.Shares.UpdateStorageEntityShare(user.Id, restrictedAccessToShare, newShare.StorageEntity.Id);
+                _storage.Shares.UpdateStorageEntityShare(user.Id, restrictedAccessToShare, newShare.EntityId);
             else
-                _storage.Shares.AddStorageEntityShare(user.Id, restrictedAccessToShare, newShare.StorageEntity.Id);
+                _storage.Shares.AddStorageEntityShare(user.Id, restrictedAccessToShare, newShare.EntityId);
                     
             return Ok();
         }
 
         [Authorize]
         [HttpPost("dir")]
-        public ActionResult<IAccessWrapperContract> AddDirectory(CDirectoryContract dirInfo)
+        public ActionResult<CAccessWrapperContract> AddDirectory(CStorageEntityContract dirInfo)
         {
             ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirInfo.ParentId, UserId);
             if (restrictedAccess.NoWriteAccess()) return Unauthorized();
@@ -149,7 +149,7 @@ namespace BitContainer.StorageService.Controllers
 
         [Authorize]
         [HttpDelete("dir")]
-        public ActionResult DeleteDirectory(CDirectoryContract dirContract)
+        public ActionResult DeleteDirectory(CStorageEntityContract dirContract)
         {
             ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirContract.Id, UserId);
             if (restrictedAccess.NoWriteAccess()) return Unauthorized();
@@ -163,7 +163,7 @@ namespace BitContainer.StorageService.Controllers
         
         [Authorize]
         [HttpDelete("file")]
-        public ActionResult DeleteFile(CFileContract fileContract)
+        public ActionResult DeleteFile(CStorageEntityContract fileContract)
         {
             ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(fileContract.Id, UserId);
             if (restrictedAccess.NoWriteAccess()) return Unauthorized();
@@ -177,7 +177,7 @@ namespace BitContainer.StorageService.Controllers
 
         [Authorize]
         [HttpPut("dir")]
-        public ActionResult RenameDirectory(CDirectoryContract dirContract)
+        public ActionResult RenameDirectory(CStorageEntityContract dirContract)
         {
             ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirContract.Id, UserId);
             if (restrictedAccess.NoWriteAccess()) return Unauthorized();
@@ -191,7 +191,7 @@ namespace BitContainer.StorageService.Controllers
 
         [Authorize]
         [HttpPut("file")]
-        public ActionResult RenameFile(CFileContract fileContract)
+        public ActionResult RenameFile(CStorageEntityContract fileContract)
         {
             ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(fileContract.Id, UserId);
             if (restrictedAccess.NoWriteAccess()) return Unauthorized();
@@ -205,7 +205,7 @@ namespace BitContainer.StorageService.Controllers
 
         [Authorize]
         [HttpPost("file/copy")]
-        public ActionResult CopyFile(CFileContract fileContract)
+        public ActionResult CopyFile(CStorageEntityContract fileContract)
         {
             Guid fileId = fileContract.Id;
             Guid newParentId = fileContract.ParentId;
@@ -223,7 +223,7 @@ namespace BitContainer.StorageService.Controllers
 
         [Authorize]
         [HttpPost("dir/copy")]
-        public ActionResult CopyDir(CDirectoryContract dirContract)
+        public ActionResult CopyDir(CStorageEntityContract dirContract)
         {
             Guid dirId = dirContract.Id;
             Guid newParentId = dirContract.ParentId;

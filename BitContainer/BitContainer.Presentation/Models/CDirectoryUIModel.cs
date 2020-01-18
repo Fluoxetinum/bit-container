@@ -37,15 +37,6 @@ namespace BitContainer.Presentation.Models
             Created = created;
         }
 
-        public CDirectoryUiModel(CDirectoryContract contract)
-        {
-            Id = contract.Id;
-            ParentId = contract.ParentId;
-            OwnerId = contract.OwnerId;
-            Name = contract.Name;
-            Created = contract.Created;
-        }
-
         public async Task Delete()
         {
             await StorageController.DeleteDirectory(this);

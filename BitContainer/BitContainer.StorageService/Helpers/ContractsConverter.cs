@@ -9,6 +9,16 @@ namespace BitContainer.StorageService.Helpers
 {
     public static class ContractsConverter
     {
+        private static CAccessWrapperContract ToRestrictedStorageEntityContract(CStorageEntityContract entityContract, ERestrictedAccessTypeContract accessContract)
+        {
+            return new CAccessWrapperContract(entityContract, accessContract, hasShares:true);
+        }
+
+        private static CAccessWrapperContract ToOwnStorageEntityContract(CStorageEntityContract entityContract, Boolean hasShares)
+        {
+            return new CAccessWrapperContract(entityContract, ERestrictedAccessTypeContract.Full, hasShares);
+        }
+
         public static ERestrictedAccessTypeContract ToAccessTypeContract(this ERestrictedAccessType restrictedAccess)
         {
             switch (restrictedAccess)
@@ -39,45 +49,34 @@ namespace BitContainer.StorageService.Helpers
             }
         }
 
-        public static IStorageEntityContract ToStorageEntityContract(IStorageEntity entity)
+        public static CStorageEntityContract ToStorageEntityContract(IStorageEntity entity)
         {
             switch (entity)
             {
                 case CFile f:
-                    return new CFileContract(f.Id, f.ParentId, f.OwnerId, f.Name, f.Created, f.Size);
+                    return new CStorageEntityContract(f.Id, f.ParentId, f.OwnerId, f.Name, f.Created, f.Size);
                 case CDirectory d:
-                    return new CDirectoryContract(d.Id, d.ParentId, d.OwnerId, d.Name, d.Created);
+                    return new CStorageEntityContract(d.Id, d.ParentId, d.OwnerId, d.Name, d.Created);
                 default:
                     throw new NotSupportedException("Invalid IStorageEntity implementation");
             }
         }
 
-        private static CRestrictedStorageEntityContract ToRestrictedStorageEntityContract
-            (IStorageEntityContract entityContract, ERestrictedAccessTypeContract accessContract)
+        public static CAccessWrapperContract ToRestrictedStorageEntityContract(IStorageEntity entity, ERestrictedAccessType access)
         {
-            return new CRestrictedStorageEntityContract(entityContract, accessContract);
-        }
-
-        public static CRestrictedStorageEntityContract ToRestrictedStorageEntityContract(IStorageEntity entity, ERestrictedAccessType access)
-        {
-            IStorageEntityContract c = ToStorageEntityContract(entity);
+            CStorageEntityContract c = ToStorageEntityContract(entity);
             return ToRestrictedStorageEntityContract(c, access.ToAccessTypeContract());
         }
 
-        private static COwnStorageEntityContract ToOwnStorageEntityContract(IStorageEntityContract entityContract, Boolean isShared)
+        public static CAccessWrapperContract ToOwnStorageEntityContract(IStorageEntity entity, Boolean hasShares)
         {
-            return new COwnStorageEntityContract(entityContract, isShared);
+            CStorageEntityContract c = ToStorageEntityContract(entity);
+            return ToOwnStorageEntityContract(c, hasShares);
         }
 
-        public static COwnStorageEntityContract ToOwnStorageEntityContract(IStorageEntity entity, Boolean isShared)
+        public static List<CAccessWrapperContract> ToOwnStorageEntityContracts(params List<COwnStorageEntity>[] lists)
         {
-            IStorageEntityContract c = ToStorageEntityContract(entity);
-            return ToOwnStorageEntityContract(c, isShared);
-        }
-
-        private static List<COwnStorageEntityContract> ToOwnStorageEntityContracts(params List<COwnStorageEntity>[] lists)
-        {
-            List<COwnStorageEntityContract> contract = new List<COwnStorageEntityContract>();
+            List<CAccessWrapperContract> contract = new List<CAccessWrapperContract>();
 
             foreach (var list in lists)
             {
@@ -89,9 +88,9 @@ namespace BitContainer.StorageService.Helpers
             return contract;
         }
 
-        private static List<CRestrictedStorageEntityContract> ToRestrictedEntityContracts(params List<CRestrictedStorageEntity>[] lists)
+        public static List<CAccessWrapperContract> ToRestrictedStorageEntityContracts(params List<CRestrictedStorageEntity>[] lists)
         {
-            List<CRestrictedStorageEntityContract> contract = new List<CRestrictedStorageEntityContract>();
+            List<CAccessWrapperContract> contract = new List<CAccessWrapperContract>();
 
             foreach (var list in lists)
             {
@@ -103,16 +102,6 @@ namespace BitContainer.StorageService.Helpers
             return contract;
         }
 
-        public static COwnStorageEntitiesListContract ToOwnStorageEntitiesListContract(params List<COwnStorageEntity>[] lists)
-        {
-            return new COwnStorageEntitiesListContract(ToOwnStorageEntityContracts(lists));
-        }
-
-        public static CRestrictedStorageEntitiesListContract ToRestrictedEntitiesListContract(params List<CRestrictedStorageEntity>[] lists)
-        {
-            return new CRestrictedStorageEntitiesListContract(ToRestrictedEntityContracts(lists));
-        }
-
         public static List<CSearchResultContract> ToSearchResultContractList(List<CSearchResult> list)
         {
             List<CSearchResultContract> searchResult = new List<CSearchResultContract>();
@@ -121,9 +110,9 @@ namespace BitContainer.StorageService.Helpers
             {
                 LinkedList<Guid> path = result.DownPath;
 
-                IStorageEntityContract storageEntity = ToStorageEntityContract(result.AccessWrapper.Entity);
+                CStorageEntityContract storageEntity = ToStorageEntityContract(result.AccessWrapper.Entity);
 
-                IAccessWrapperContract accessWrapper;
+                CAccessWrapperContract accessWrapper;
                 switch (result.AccessWrapper)
                 {
                     case CRestrictedStorageEntity re:

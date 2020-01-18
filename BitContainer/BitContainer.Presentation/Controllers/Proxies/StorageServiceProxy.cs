@@ -89,11 +89,11 @@ namespace BitContainer.Presentation.Controllers.Proxies
         }
 
 
-        public static async Task<COwnStorageEntitiesListContract> GetOwnerStorageEntites(Guid parentId)
+        public static async Task<List<CAccessWrapperContract>> GetOwnerStorageEntites(Guid parentId)
         {
             var builder = new GetRequestBuilder(_getOwnerStorageEntitiesRequest + parentId);
 
-            return await HttpHelper.Request<COwnStorageEntitiesListContract>(builder, response =>
+            return await HttpHelper.Request<List<CAccessWrapperContract>>(builder, response =>
             {
                 try
                 {
@@ -106,11 +106,11 @@ namespace BitContainer.Presentation.Controllers.Proxies
             });
         }
 
-        public static async Task<CRestrictedStorageEntitiesListContract> GetSharedStorageEntites(Guid parentId)
+        public static async Task<List<CAccessWrapperContract>> GetSharedStorageEntites(Guid parentId)
         {
             var builder = new GetRequestBuilder(_getSharedStorageEntitiesRequest + parentId);
 
-            return await HttpHelper.Request<CRestrictedStorageEntitiesListContract>(builder, response =>
+            return await HttpHelper.Request<List<CAccessWrapperContract>>(builder, response =>
             {
                 try
                 {
@@ -123,11 +123,11 @@ namespace BitContainer.Presentation.Controllers.Proxies
             });
         }
 
-        public static async Task<IAccessWrapperContract> CreateDirectory(CDirectoryContract dirContract)
+        public static async Task<CAccessWrapperContract> CreateDirectory(CStorageEntityContract dirContract)
         {
-            var builder = new PostRequestBuilder<CDirectoryContract>(_dirRequest, dirContract);
+            var builder = new PostRequestBuilder<CStorageEntityContract>(_dirRequest, dirContract);
 
-            return await HttpHelper.Request<IAccessWrapperContract>(builder, response =>
+            return await HttpHelper.Request<CAccessWrapperContract>(builder, response =>
             {
                 try
                 {
@@ -140,9 +140,9 @@ namespace BitContainer.Presentation.Controllers.Proxies
             });
         }
 
-        public static async Task DeleteDirectory(CDirectoryContract dir)
+        public static async Task DeleteDirectory(CStorageEntityContract dir)
         {
-            var builder = new DeleteRequestBuilder<CDirectoryContract>(_dirRequest, dir);
+            var builder = new DeleteRequestBuilder<CStorageEntityContract>(_dirRequest, dir);
 
             await HttpHelper.Request(builder, response =>
             {
@@ -157,9 +157,9 @@ namespace BitContainer.Presentation.Controllers.Proxies
             });
         }
 
-        public static async Task DeleteFile(CFileContract file)
+        public static async Task DeleteFile(CStorageEntityContract file)
         {
-            var builder = new DeleteRequestBuilder<CFileContract>(_fileRequest, file);
+            var builder = new DeleteRequestBuilder<CStorageEntityContract>(_fileRequest, file);
 
             await HttpHelper.Request(builder, response =>
             {
@@ -174,27 +174,9 @@ namespace BitContainer.Presentation.Controllers.Proxies
             });
         }
 
-        public static async Task RenameDirectory(CDirectoryContract dir)
+        public static async Task RenameDirectory(CStorageEntityContract dir)
         {
-            var builder = new PutRequestBuilder<CDirectoryContract>(_dirRequest, dir);
-
-            await HttpHelper.Request(builder, response =>
-            {
-                try
-                {
-                    response.EnsureSuccessStatusCode();
-                }
-                catch (HttpRequestException) when (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    throw new UnauthorizedAccessException();
-                }
-            });
-
-        }
-
-        public static async Task RenameFile(CFileContract file)
-        {
-            var builder = new PutRequestBuilder<CFileContract>(_fileRequest, file);
+            var builder = new PutRequestBuilder<CStorageEntityContract>(_dirRequest, dir);
 
             await HttpHelper.Request(builder, response =>
             {
@@ -210,9 +192,9 @@ namespace BitContainer.Presentation.Controllers.Proxies
 
         }
 
-        public static async Task CopyDirectory(CDirectoryContract dir)
+        public static async Task RenameFile(CStorageEntityContract file)
         {
-            var builder = new PostRequestBuilder<CDirectoryContract>(_dirCopyRequest, dir);
+            var builder = new PutRequestBuilder<CStorageEntityContract>(_fileRequest, file);
 
             await HttpHelper.Request(builder, response =>
             {
@@ -228,9 +210,9 @@ namespace BitContainer.Presentation.Controllers.Proxies
 
         }
 
-        public static async Task CopyFile(CFileContract file)
+        public static async Task CopyDirectory(CStorageEntityContract dir)
         {
-            var builder = new PostRequestBuilder<CFileContract>(_fileCopyRequest, file);
+            var builder = new PostRequestBuilder<CStorageEntityContract>(_dirCopyRequest, dir);
 
             await HttpHelper.Request(builder, response =>
             {
@@ -246,11 +228,29 @@ namespace BitContainer.Presentation.Controllers.Proxies
 
         }
 
-        public static async Task<IAccessWrapperContract> GetFile(Guid id)
+        public static async Task CopyFile(CStorageEntityContract file)
+        {
+            var builder = new PostRequestBuilder<CStorageEntityContract>(_fileCopyRequest, file);
+
+            await HttpHelper.Request(builder, response =>
+            {
+                try
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+                catch (HttpRequestException) when (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+            });
+
+        }
+
+        public static async Task<CAccessWrapperContract> GetFile(Guid id)
         {
             var builder = new GetRequestBuilder(_fileRequest + $"{id}");
 
-            return await HttpHelper.Request<IAccessWrapperContract>(builder, response =>
+            return await HttpHelper.Request<CAccessWrapperContract>(builder, response =>
             {
                 try
                 {
@@ -266,7 +266,7 @@ namespace BitContainer.Presentation.Controllers.Proxies
         
         private static readonly int GuidSize = Guid.Empty.ToString().Length;
 
-        public static async Task<IAccessWrapperContract> UploadFile(FileInfo info, Guid parentId,
+        public static async Task<CAccessWrapperContract> UploadFile(FileInfo info, Guid parentId,
             IProgress<Double> onProgressPercentChanged, Int32 blockSize = 10000)
         {
             Guid ownerId = AuthController.AuthenticatedUserUiModel.Id;
@@ -317,7 +317,7 @@ namespace BitContainer.Presentation.Controllers.Proxies
                     Guid id = new Guid(Encoding.UTF8.GetString(idBytes));
                     // </Delivery confirmation> 
 
-                    IAccessWrapperContract newFile = await GetFile(id);
+                    CAccessWrapperContract newFile = await GetFile(id);
 
                     return newFile;
                 }

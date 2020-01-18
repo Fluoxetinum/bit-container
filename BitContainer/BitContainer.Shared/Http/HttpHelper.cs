@@ -13,20 +13,7 @@ namespace BitContainer.Shared.Http
         private static readonly HttpClient HttpClient = new HttpClient();
 
         public static  readonly Action<HttpResponseMessage> EmptyCatchAction = response => { };
-
-        static HttpHelper()
-        {
-            JsonConvert.DefaultSettings = () =>
-            {
-                JsonSerializerSettings settings = 
-                    new JsonSerializerSettings
-                    {
-                        TypeNameHandling = TypeNameHandling.All
-                    };
-                return settings;
-            };
-        }
-
+        
         public static void UpdateToken(String token)
         {
             HttpClient.DefaultRequestHeaders.Authorization = 

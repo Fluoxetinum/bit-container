@@ -37,54 +37,50 @@ namespace BitContainer.Presentation.Helpers
             }
         }
 
-        public static IStorageEntityUiModel GetStorageEntityUiModel(IStorageEntityContract entityContract)
+        public static IStorageEntityUiModel GetStorageEntityUiModel(CStorageEntityContract entityContract)
         {
             IStorageEntityUiModel seModel = null;
 
-            switch (entityContract)
+            if (entityContract.Size.HasValue)
             {
-                case CFileContract fContract: 
-                    seModel = new CFileUiModel(fContract);
-                    break;
-                case CDirectoryContract dContract :
-                    seModel = new CDirectoryUiModel(dContract);
-                    break;
-                default:
-                    throw new NotSupportedException("Not supported storage contract.");
+                seModel = new CFileUiModel(entityContract.Id, entityContract.ParentId, entityContract.OwnerId,
+                    entityContract.Name, entityContract.Created, entityContract.Size.Value);
+            }
+            else
+            {
+                seModel = new CDirectoryUiModel(entityContract.Id, entityContract.ParentId, entityContract.OwnerId,
+                    entityContract.Name, entityContract.Created);
             }
 
             return seModel;
         }
 
-        public static IAccessWrapperUiModel GetAccessWrapperUiModel(IAccessWrapperContract wrapperContract)
+        public static IAccessWrapperUiModel GetAccessWrapperUiModel(CAccessWrapperContract wrapperContract)
         {
             IStorageEntityUiModel entityUiModel = GetStorageEntityUiModel(wrapperContract.EntityContract);
 
-            switch (wrapperContract)
+            if (wrapperContract.Access == ERestrictedAccessTypeContract.Full)
+                return new COwnStorageEntityUiModel(entityUiModel, wrapperContract.HasShares);
+            else
             {
-                case COwnStorageEntityContract own:
-                    return new COwnStorageEntityUiModel(entityUiModel, own.IsShared);
-                case CRestrictedStorageEntityContract restricted:
-                    EAccessTypeUiModel accessTypeUiModel = ToUiAccessType(restricted.AccessContract);
-                    return new CRestrictedStorageEntityUiModel(entityUiModel, accessTypeUiModel);
-                default:
-                    throw new NotSupportedException("Not supported storage contract.");
+                EAccessTypeUiModel accessTypeUiModel = ToUiAccessType(wrapperContract.Access);
+                return new CRestrictedStorageEntityUiModel(entityUiModel, accessTypeUiModel);
             }
         }
         
-        public static IStorageEntityContract GetStorageEntityContract(IStorageEntityUiModel uiModel)
+        public static CStorageEntityContract GetStorageEntityContract(IStorageEntityUiModel uiModel)
         {
             switch (uiModel)
             {
                 case CFileUiModel file:
-                    return new CFileContract(file.Id, 
+                    return new CStorageEntityContract(file.Id, 
                         file.ParentId, 
                         file.OwnerId, 
                         file.Name, 
                         file.Created, 
                         file.Size);
                 case CDirectoryUiModel dir:
-                    return new CDirectoryContract(dir.Id,
+                    return new CStorageEntityContract(dir.Id,
                         dir.ParentId,
                         dir.OwnerId,
                         dir.Name,

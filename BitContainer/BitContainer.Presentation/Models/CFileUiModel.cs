@@ -49,16 +49,6 @@ namespace BitContainer.Presentation.Models
             Size = size;
         }
 
-        public CFileUiModel(CFileContract contract)
-        {
-            Id = contract.Id;
-            ParentId = contract.ParentId;
-            OwnerId = contract.OwnerId;
-            Name = contract.Name;
-            Created = contract.Created;
-            Size = contract.Size;
-        }
-
         public async Task Delete()
         {
             await StorageController.DeleteFile(this);

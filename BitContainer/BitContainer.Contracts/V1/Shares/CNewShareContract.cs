@@ -1,21 +1,20 @@
 ﻿using System;
-using BitContainer.Contracts.V1.Storage;
 
 namespace BitContainer.Contracts.V1.Shares
 {
     public class CNewShareContract
     {
-        public String UserName { get; set; } // TODO: Search users on client (Andrey Gurin)
+        public Guid EntityId { get; set; }
+        public String UserName { get; set; } 
         public ERestrictedAccessTypeContract AccessTypeContract { get; set; }
-        public IStorageEntityContract StorageEntity { get; set; }
-
-        public static CNewShareContract Create(String userName, ERestrictedAccessTypeContract access, IStorageEntityContract storageEntity)
+        
+        public static CNewShareContract Create(String userName, ERestrictedAccessTypeContract access, Guid entityId)
         {
             return new CNewShareContract()
             {
                 UserName = userName,
                 AccessTypeContract = access,
-                StorageEntity = storageEntity
+                EntityId = entityId
             };
         }
     }

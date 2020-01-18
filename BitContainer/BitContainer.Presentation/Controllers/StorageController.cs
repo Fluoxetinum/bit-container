@@ -33,9 +33,9 @@ namespace BitContainer.Presentation.Controllers
 
             foreach (var d in result)
             {
-                if (d.AccessWrapper is COwnStorageEntityContract entity)
+                if (d.AccessWrapper.Access == ERestrictedAccessTypeContract.Full)
                 {
-                    Boolean isShared = entity.IsShared;
+                    Boolean isShared = d.AccessWrapper.HasShares;
                     IStorageEntityUiModel seModel = ContractsConverter.GetStorageEntityUiModel(d.AccessWrapper.EntityContract);
                     IAccessWrapperUiModel restrictedModel = new COwnStorageEntityUiModel(seModel, isShared);
 
@@ -63,10 +63,10 @@ namespace BitContainer.Presentation.Controllers
 
             foreach (var d in result)
             {
-                if (d.AccessWrapper is CRestrictedStorageEntityContract restrictedEntity)
+                if (d.AccessWrapper.Access != ERestrictedAccessTypeContract.Full)
                 {
-                    EAccessTypeUiModel access = ContractsConverter.ToUiAccessType(restrictedEntity.AccessContract);
-                    IStorageEntityUiModel seModel = ContractsConverter.GetStorageEntityUiModel(restrictedEntity.EntityContract);
+                    EAccessTypeUiModel access = ContractsConverter.ToUiAccessType(d.AccessWrapper.Access);
+                    IStorageEntityUiModel seModel = ContractsConverter.GetStorageEntityUiModel(d.AccessWrapper.EntityContract);
                     IAccessWrapperUiModel restrictedModel = new CRestrictedStorageEntityUiModel(seModel, access);
 
                     list.Add(new CSearchResultUiModelDirtyAdapter(restrictedModel, d.DownPath));
@@ -82,7 +82,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task<List<IAccessWrapperUiModel>> GetOwnerStorageEntities(Guid parentId)
         {
-            COwnStorageEntitiesListContract result = null;
+            List<CAccessWrapperContract> result = null;
             
             await HandleAuthError(async () =>
             {
@@ -91,9 +91,9 @@ namespace BitContainer.Presentation.Controllers
 
             List<IAccessWrapperUiModel> list = new List<IAccessWrapperUiModel>();
 
-            foreach (var d in result.Entities)
+            foreach (var d in result)
             {
-                Boolean isShared = d.IsShared;
+                Boolean isShared = d.HasShares;
                 IStorageEntityUiModel seModel = ContractsConverter.GetStorageEntityUiModel(d.EntityContract);
                 list.Add(new COwnStorageEntityUiModel(seModel, isShared));
             }
@@ -103,7 +103,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task<List<IAccessWrapperUiModel>> GetSharedStorageEntities(Guid parentId)
         {
-            CRestrictedStorageEntitiesListContract result = null;
+            List<CAccessWrapperContract> result = null;
 
             await HandleAuthError(async () =>
             {
@@ -112,9 +112,9 @@ namespace BitContainer.Presentation.Controllers
 
             List<IAccessWrapperUiModel> list = new List<IAccessWrapperUiModel>();
 
-            foreach (var d in result.Entites)
+            foreach (var d in result)
             {
-                EAccessTypeUiModel access = ContractsConverter.ToUiAccessType(d.AccessContract);
+                EAccessTypeUiModel access = ContractsConverter.ToUiAccessType(d.Access);
                 IStorageEntityUiModel seModel = ContractsConverter.GetStorageEntityUiModel(d.EntityContract);
                 list.Add(new CRestrictedStorageEntityUiModel(seModel, access));
             }
@@ -124,9 +124,10 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task<IAccessWrapperUiModel> CreateDirectory(String name, Guid parentId)
         {
-            CDirectoryContract contract = CDirectoryContract.CreateBlank(parentId, name);
+            CStorageEntityContract contract = new CStorageEntityContract(id:Guid.Empty, parentId:parentId, 
+                ownerId:Guid.Empty, name:name, created:DateTime.MaxValue);
             
-            IAccessWrapperContract result = null;
+            CAccessWrapperContract result = null;
 
             await HandleAuthError(async () =>
             {
@@ -138,7 +139,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task<IAccessWrapperUiModel> UploadFile(String path, Guid parentId)
         {
-            IAccessWrapperContract file = null;
+            CAccessWrapperContract file = null;
             FileInfo info = new FileInfo(path);
             UploadJob job = UploadJob.Create(info.Name);
             var progress = new Progress<Double>(i => job.Progress = i);
@@ -162,8 +163,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task DeleteDirectory(CDirectoryUiModel dir)
         {
-            CDirectoryContract dirContract = 
-                ContractsConverter.GetStorageEntityContract(dir) as CDirectoryContract;
+            CStorageEntityContract dirContract = ContractsConverter.GetStorageEntityContract(dir) ;
 
             await HandleAuthError(async () =>
             {
@@ -173,8 +173,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task DeleteFile(CFileUiModel file)
         {
-            CFileContract fileContract = 
-                ContractsConverter.GetStorageEntityContract(file) as CFileContract;
+            CStorageEntityContract fileContract = ContractsConverter.GetStorageEntityContract(file);
 
             await HandleAuthError(async () =>
             {
@@ -184,8 +183,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task RenameDirectory(CDirectoryUiModel renamedDir)
         {
-            CDirectoryContract dirContract = 
-                ContractsConverter.GetStorageEntityContract(renamedDir) as CDirectoryContract;
+            CStorageEntityContract dirContract = ContractsConverter.GetStorageEntityContract(renamedDir);
 
             await HandleAuthError(async () =>
             {
@@ -195,8 +193,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task RenameFile(CFileUiModel renamedFile)
         {
-            CFileContract fileContract = 
-                ContractsConverter.GetStorageEntityContract(renamedFile) as CFileContract;
+            CStorageEntityContract fileContract = ContractsConverter.GetStorageEntityContract(renamedFile);
 
             await HandleAuthError(async () =>
             {
@@ -206,8 +203,7 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task CopyDir(CDirectoryUiModel movedDir)
         {
-            CDirectoryContract dirContract = 
-                ContractsConverter.GetStorageEntityContract(movedDir) as CDirectoryContract;
+            CStorageEntityContract dirContract = ContractsConverter.GetStorageEntityContract(movedDir);
 
             await HandleAuthError(async () =>
             {
@@ -217,8 +213,8 @@ namespace BitContainer.Presentation.Controllers
 
         public static async Task CopyFile(CFileUiModel movedFile)
         {
-            CFileContract fileContract =
-                ContractsConverter.GetStorageEntityContract(movedFile) as CFileContract;
+            CStorageEntityContract fileContract =
+                ContractsConverter.GetStorageEntityContract(movedFile);
 
             await HandleAuthError(async () =>
             {
@@ -229,9 +225,9 @@ namespace BitContainer.Presentation.Controllers
         public static async Task UpdateShare(String userName, EAccessTypeUiModel access, IStorageEntityUiModel uiEntity)
         {
             ERestrictedAccessTypeContract accessContract = ContractsConverter.ToAccessTypeContract(access);
-            IStorageEntityContract entityContract = ContractsConverter.GetStorageEntityContract(uiEntity);
+            CStorageEntityContract entityContract = ContractsConverter.GetStorageEntityContract(uiEntity);
 
-            CNewShareContract newNewShare = CNewShareContract.Create(userName, accessContract, entityContract);
+            CNewShareContract newNewShare = CNewShareContract.Create(userName, accessContract, entityContract.Id);
 
             await HandleAuthError(async () =>
             {

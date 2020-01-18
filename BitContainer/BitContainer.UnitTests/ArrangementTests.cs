@@ -26,45 +26,45 @@ namespace BitContainer.UnitTests
             Guid mockOwnerId = Guid.NewGuid();
             Guid mockParentId = Guid.Empty;
 
-            CDirectoryContract[] dirs = new CDirectoryContract[]
+            CStorageEntityContract[] dirs = new CStorageEntityContract[]
             {
-                new CDirectoryContract(id:Guid.NewGuid(), parentId:mockParentId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, 
                     ownerId:mockOwnerId, name:"FolderA",  created:DateTime.Parse("2019-10-27T21:21:29")), 
-                new CDirectoryContract(id:Guid.NewGuid(), parentId:mockParentId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, 
                     ownerId:mockOwnerId, name:"FolderB", created:DateTime.Parse("2019-10-27T21:26:43")), 
-                new CDirectoryContract(id:Guid.NewGuid(), parentId:mockParentId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, 
                     ownerId:mockOwnerId, name:"FolderC", created:DateTime.Parse("2019-11-05T12:30:38")), 
-                new CDirectoryContract(id:Guid.NewGuid(), parentId:mockParentId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, 
                     ownerId:mockOwnerId, name:"FolderD", created:DateTime.Parse("2019-11-05T12:30:45")), 
-                new CDirectoryContract(id:Guid.NewGuid(), parentId:mockParentId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, 
                     ownerId:mockOwnerId, name:"FolderE", created:DateTime.Parse("2019-11-05T12:30:51")), 
-                new CDirectoryContract(id:Guid.NewGuid(), parentId:mockParentId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, 
                     ownerId:mockOwnerId, name:"FolderF", created:DateTime.Parse("2019-11-05T12:30:59")),
             };
 
-            CFileContract[] files = new CFileContract[]
+            CStorageEntityContract[] files = new CStorageEntityContract[]
             {
-                new CFileContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
                     name:"file6.txt", created:DateTime.Parse("2019-10-28T14:31:49"), size:1000), 
-                new CFileContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
                     name:"file5.ico", created:DateTime.Parse("2019-10-28T14:32:46"), size:1000), 
-                new CFileContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
                     name:"file4.pdf", created:DateTime.Parse("2019-10-28T14:33:15"), size:1000), 
-                new CFileContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
                     name:"file3.jpg", created:DateTime.Parse("2019-11-05T12:37:02"), size:1000), 
-                new CFileContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
                     name:"file2.jpg", created:DateTime.Parse("2019-11-05T12:40:43"), size:1000), 
-                new CFileContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
+                new CStorageEntityContract(id:Guid.NewGuid(), parentId:mockParentId, ownerId:mockOwnerId, 
                     name:"file1.jpg", created:DateTime.Parse("2019-11-05T12:40:53"), size:1000),
             };
 
-            List<COwnStorageEntityContract> oneFileSystemTierEntities = new List<COwnStorageEntityContract>();
+            List<CAccessWrapperContract> oneFileSystemTierEntities = new List<CAccessWrapperContract>();
 
             foreach (var dir in dirs)
-                oneFileSystemTierEntities.Add(new COwnStorageEntityContract(dir, isShared:false));
+                oneFileSystemTierEntities.Add(new CAccessWrapperContract(dir, ERestrictedAccessTypeContract.Full, hasShares:false));
 
             foreach (var file in files)
-                oneFileSystemTierEntities.Add(new COwnStorageEntityContract(file, isShared:false));
+                oneFileSystemTierEntities.Add(new CAccessWrapperContract(file, ERestrictedAccessTypeContract.Full, hasShares:false));
 
             _oneTierEntities = new Dictionary<String, ObservableCollection<IAccessWrapperUiModel>>
             {
