@@ -55,7 +55,7 @@ namespace BitContainer.Shared.Http
                 }
             });
         }
-
+        
         public static async Task<CAuthenticatedUserContract> LogInRequest(CCredentialsContract message)
         {
             var requestBuilder = 

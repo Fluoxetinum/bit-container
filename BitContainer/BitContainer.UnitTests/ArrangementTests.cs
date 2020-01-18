@@ -135,7 +135,6 @@ namespace BitContainer.UnitTests
             Assert.That(result[String.Empty].Last().Entity.Name, Is.EqualTo("FolderF"));
         }
 
-
         [Test]
         public void FilterStorageEntitiesByName()
         {

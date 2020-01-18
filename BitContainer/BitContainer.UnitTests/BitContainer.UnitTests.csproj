@@ -27,10 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataAccess\BitContainer.DataAccess.csproj" />
-    <ProjectReference Include="..\DTO\BitContainer.Contracts.csproj" />
-    <ProjectReference Include="..\Presentation\BitContainer.Presentation.csproj" />
-    <ProjectReference Include="..\StorageService\BitContainer.StorageService.csproj" />
+    <ProjectReference Include="..\BitContainer.Presentation\BitContainer.Presentation.csproj" />
+    <ProjectReference Include="..\BitContainer.Shared\BitContainer.Shared.csproj" />
   </ItemGroup>
 
 </Project>
