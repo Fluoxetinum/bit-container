@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.IO;
 using System.Linq;
 using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Helpers;
+using BitContainer.DataAccess.Mappers;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 using BitContainer.DataAccess.Queries;
 using BitContainer.DataAccess.Queries.Base;
 using BitContainer.DataAccess.Queries.Share;
@@ -130,9 +134,9 @@ namespace BitContainer.DataAccess.DataProviders
             return result;
         }
 
-        public Dictionary<Int32, List<IStorageEntity>> GetAllChildren(Guid dirId)
+        public Dictionary<Int32, List<Models.StorageEntities.IStorageEntity>> GetAllChildren(Guid dirId)
         {
-            Dictionary<Int32, List<IStorageEntity>> result = new Dictionary<int, List<IStorageEntity>>();
+            Dictionary<Int32, List<Models.StorageEntities.IStorageEntity>> result = new Dictionary<int, List<Models.StorageEntities.IStorageEntity>>();
 
             _dbHelper.ExecuteTransaction(executionAlgorithm: (command) =>
             {
@@ -145,7 +149,7 @@ namespace BitContainer.DataAccess.DataProviders
                 foreach (var child in children)
                 {
                     if (!result.ContainsKey(child.Level))
-                        result[child.Level] = new List<IStorageEntity>();
+                        result[child.Level] = new List<Models.StorageEntities.IStorageEntity>();
 
                     switch (child.Type)
                     {
@@ -260,9 +264,28 @@ namespace BitContainer.DataAccess.DataProviders
             }
         }
 
+        public IStorageEntity GetStorageEntity(Guid entityId)
+        {
+            var query = new GetStorageEntityQuery(entityId);
+            return _dbHelper.ExecuteQuery(query);
+        }
+
         public Byte[] GetAllFileData(Guid fileId)
         {
             var query = new GetAllFileDataQuery(fileId);
+            return _dbHelper.ExecuteQuery(query);
+        }
+        
+        public CFileStreamInfo GetFileStreamInfo(Guid fileId)
+        {
+            var query = new GetFileStreamPathQuery(fileId);
+            return _dbHelper.ExecuteQuery(query);
+        }
+
+
+        public Int32 UpdateFileSize(Guid fileId, Int64 newSize)
+        {
+            var query = new UpdateFileSizeQuery(fileId, newSize);
             return _dbHelper.ExecuteQuery(query);
         }
 
@@ -313,6 +336,29 @@ namespace BitContainer.DataAccess.DataProviders
 
             return result;
         }
+
+        public CFile AddEmptyFile(Guid parentId, Guid ownerId, String name, SqlCommand command)
+        {
+            byte[] mockFileData = new byte[0];
+            var query = new AddFileQuery(parentId, ownerId, name, mockFileData);
+            query.Execute(command);
+
+            var fileQuery = new GetFileQuery(parentId, ownerId, name);
+            CFile file = fileQuery.Execute(command);
+
+            var userStatsQuery = new GetUserStatsQuery(ownerId);
+            CUserStats userStats = userStatsQuery.Execute(command);
+
+            userStats.FilesCount++;
+            userStats.StorageSize += file.Size;
+
+            var updateStatsQuery = new UpdateUserStatsQuery(userStats);
+            updateStatsQuery.Execute(command);
+
+            return file;
+        }
+
+
 
         public Int32 DeleteFile(Guid id)
         {

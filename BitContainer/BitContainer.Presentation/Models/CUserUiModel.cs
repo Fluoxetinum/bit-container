@@ -15,6 +15,8 @@ namespace BitContainer.Presentation.Models
         public Int32 StorageSize { get; set; }
         public Int32 StorageSizeMb => StorageSize / 1024 / 1024;
 
+        public String Token { get; set; }
+
         public static CUserUiModel Create(CAuthenticatedUserContract contract)
         {
             return new CUserUiModel()
@@ -23,7 +25,8 @@ namespace BitContainer.Presentation.Models
                 Name = contract.User.Name,
                 FilesCount = contract.Stats.FilesCount,
                 DirsCount = contract.Stats.DirsCount,
-                StorageSize = contract.Stats.StorageSize
+                StorageSize = contract.Stats.StorageSize,
+                Token = contract.Token
             };
         }
     }

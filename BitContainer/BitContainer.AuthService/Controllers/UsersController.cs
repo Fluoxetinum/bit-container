@@ -100,7 +100,7 @@ namespace BitContainer.AuthService.Controllers
                 );
             var tokenHandler = new JwtSecurityTokenHandler();
             var encodedJwt = tokenHandler.WriteToken(jwt);
-
+            
             CAuthenticatedUserContract response = 
                 new CAuthenticatedUserContract(
                     encodedJwt, 

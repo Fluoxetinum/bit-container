@@ -4,6 +4,7 @@ using System.Linq;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 using BitContainer.DataAccess.Queries.Base;
 using BitContainer.DataAccess.Scripts;
 using BitContainer.Shared.Auth;

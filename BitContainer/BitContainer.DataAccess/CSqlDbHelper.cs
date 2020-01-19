@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.IO;
 using System.Data.Sql;
+using System.Threading.Tasks;
 using BitContainer.DataAccess.Queries;
 using BitContainer.DataAccess.Queries.Base;
 using BitContainer.DataAccess.Scripts;
@@ -50,6 +51,42 @@ namespace BitContainer.DataAccess
                     executionAlgorithm(command);
 
                     transaction.Commit();
+                }
+                catch (Exception queryEx)
+                {
+                    //TODO: Implement exception handling
+                    //TODO: Исключения, возникающие здесь не записываются в логи
+
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        throw;
+                    }
+
+                    throw;
+                }
+            }
+        }
+
+        public async Task ExecuteTransactionAsync(Func<SqlCommand, Task> executionAlgorithm)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                SqlCommand command = connection.CreateCommand();
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                command.Connection = connection;
+                command.Transaction = transaction;
+                try
+                {
+                    await executionAlgorithm(command);
+
+                    transaction.Commit();
+                    //TODO: Исключения, возникающие здесь не записываются в логи
                 }
                 catch (Exception queryEx)
                 {

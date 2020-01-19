@@ -4,6 +4,7 @@ using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 
 namespace BitContainer.StorageService.Helpers
 {

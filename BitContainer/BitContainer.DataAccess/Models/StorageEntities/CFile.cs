@@ -1,26 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace BitContainer.DataAccess.Models
+namespace BitContainer.DataAccess.Models.StorageEntities
 {
-    public class CDirectory : IStorageEntity
+    public class CFile : IStorageEntity
     {
         public Guid Id { get; }
         public Guid ParentId { get; }
         public Guid OwnerId { get; }
         public String Name { get; }
         public DateTime Created { get; }
-        public Boolean IsShared { get; }
 
-        public CDirectory(Guid id, Guid parentId, Guid ownerId, String name, DateTime created, Boolean isShared = false)
+        public Int32 Size { get; }
+
+        public CFile(Guid id,
+            Guid parentId,
+            Guid ownerId,
+            String name,
+            DateTime created,
+            Int32 size)
         {
             Id = id;
             ParentId = parentId;
             OwnerId = ownerId;
             Name = name;
             Created = created;
-            IsShared = isShared;
+            Size = size;
         }
+
     }
 }

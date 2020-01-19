@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using BitContainer.DataAccess.Mappers;
+using BitContainer.DataAccess.Mappers.StorageEntities;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 using BitContainer.DataAccess.Queries.Base;
 
 namespace BitContainer.DataAccess.Queries.Store

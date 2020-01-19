@@ -8,7 +8,7 @@ namespace BitContainer.StorageService.Managers.Interfaces
 {
     public interface ILoadsManager
     {
-        CTransmissionEndPointContract GetEndPointToUpload();
-        CTransmissionEndPointContract GetEndPointToDownload();
+        CTransmissionEndPointContract EndPointToUploadToServer { get; }
+        CTransmissionEndPointContract EndPointToDownloadFromServer { get; }
     }
 }

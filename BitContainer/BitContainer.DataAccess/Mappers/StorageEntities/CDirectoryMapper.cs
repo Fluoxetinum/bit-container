@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Data.Sql;
 using System.Data.SqlClient;
 using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 
-namespace BitContainer.DataAccess.Mappers
+namespace BitContainer.DataAccess.Mappers.StorageEntities
 {
     public class CDirectoryMapper : IMapper<CDirectory>
     {

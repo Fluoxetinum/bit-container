@@ -54,9 +54,9 @@ namespace BitContainer.StorageService
             T4StorageDbInitScript script = new T4StorageDbInitScript(DbNames.StorageDbName);
             services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
                 new CSqlDbHelper(sqlServerConnectionString, script));
-            services.AddSingleton<ILoadsManager, CLoadsManager>();
             services.AddSingleton<IStorageProvider, CStorageProvider>();
             services.AddSingleton<IStatsProvider, CStatsProvider>();
+            services.AddSingleton<ILoadsManager, CLoadsManager>();
             services.AddSignalR();
             
             String authServiceUrl = 

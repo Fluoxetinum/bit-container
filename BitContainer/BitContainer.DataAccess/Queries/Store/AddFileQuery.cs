@@ -11,7 +11,7 @@ namespace BitContainer.DataAccess.Queries.Store
         public Guid OwnerId { get; set; }
         public String Name { get; set; }
         public Byte[] Data { get; set; }
-        public Int32 Size { get; set; }
+        public Int64 Size { get; set; }
 
         private String QueryString =>
             $"INSERT INTO {DbNames.Entities} " +
@@ -31,7 +31,7 @@ namespace BitContainer.DataAccess.Queries.Store
             OwnerId = ownerId;
             Name = name;
             Data = data;
-            Size = data.Length;
+            Size = data.LongLength;
         }
 
         public override SqlCommand Prepare(SqlCommand command)

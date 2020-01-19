@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
 
-namespace BitContainer.DataAccess.Models
+namespace BitContainer.DataAccess.Models.StorageEntities
 {
-    public class CFile : IStorageEntity
+    public class CDirectory : IStorageEntity
     {
         public Guid Id { get; }
         public Guid ParentId { get; }
@@ -13,22 +10,13 @@ namespace BitContainer.DataAccess.Models
         public String Name { get; }
         public DateTime Created { get; }
 
-        public Int32 Size { get; }
-
-        public CFile(Guid id,
-            Guid parentId,
-            Guid ownerId,
-            String name,
-            DateTime created,
-            Int32 size)
+        public CDirectory(Guid id, Guid parentId, Guid ownerId, String name, DateTime created)
         {
             Id = id;
             ParentId = parentId;
             OwnerId = ownerId;
             Name = name;
             Created = created;
-            Size = size;
         }
-
     }
 }

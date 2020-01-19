@@ -13,6 +13,7 @@ using BitContainer.Contracts.V1.Storage;
 using BitContainer.Presentation.Models;
 using BitContainer.Shared.Http;
 using BitContainer.Shared.Http.Requests;
+using BitContainer.Shared.StreamHelpers;
 using Newtonsoft.Json;
 
 namespace BitContainer.Presentation.Controllers.Proxies
@@ -273,74 +274,51 @@ namespace BitContainer.Presentation.Controllers.Proxies
 
             CTransmissionEndPointContract endPoint = await GetEndpoint(_getUploadEndpointRequest);
 
-            using (TcpClient client = new TcpClient())
+            using TcpClient client = new TcpClient();
+            await client.ConnectAsync(endPoint.Address, endPoint.Port);
+
+            await using NetworkStream networkStream = client.GetStream();
+            await networkStream.WriteStringAsync(info.Name);
+            await networkStream.WriteGuidAsync(parentId);
+            await networkStream.WriteStringAsync(AuthController.AuthenticatedUserUiModel.Token);
+            Int64 size = info.Length;
+            await networkStream.WriteInt64Async(size);
+
+            await using (FileStream reader = File.OpenRead(info.FullName))
             {
-                await client.ConnectAsync(endPoint.Address, endPoint.Port);
-
-                using (NetworkStream networkStream = client.GetStream())
+                Int32 writeBytes = 0;
+                byte[] block = new byte[blockSize];
+                int chunkSize = 1;
+                while (chunkSize > 0)
                 {
-                    byte[] fileName = Encoding.UTF8.GetBytes(info.Name);
-                    byte[] fileNameSize = BitConverter.GetBytes(fileName.Length);
+                    chunkSize = await reader.ReadAsync(block, 0, block.Length);
+                    await networkStream.WriteAsync(block, 0, chunkSize);
 
-                    await networkStream.WriteAsync(fileNameSize, 0, fileNameSize.Length);
-                    await networkStream.WriteAsync(fileName, 0, fileName.Length);
-
-                    byte[] parentIdBytes = Encoding.UTF8.GetBytes(parentId.ToString());
-                    await networkStream.WriteAsync(parentIdBytes, 0, parentIdBytes.Length);
-
-                    byte[] ownerIdBytes = Encoding.UTF8.GetBytes(ownerId.ToString());
-                    await networkStream.WriteAsync(ownerIdBytes, 0, ownerIdBytes.Length);
-
-                    Int32 size = (Int32) info.Length;
-                    byte[] fileSize = BitConverter.GetBytes(size);
-                    await networkStream.WriteAsync(fileSize, 0, fileSize.Length);
-
-                    using (FileStream reader = File.OpenRead(info.FullName))
-                    {
-                        Int32 writeBytes = 0;
-                        byte[] block = new byte[blockSize];
-                        int chunkSize = 1;
-                        while (chunkSize > 0)
-                        {
-                            chunkSize = await reader.ReadAsync(block, 0, block.Length);
-                            await networkStream.WriteAsync(block, 0, chunkSize);
-
-                            writeBytes += chunkSize;
-                            Double progress = (Double)writeBytes / size * 100;
-                            onProgressPercentChanged.Report(progress);
-                        }
-                    }
-
-                    // <Delivery confirmation> 
-                    byte[] idBytes = new byte[GuidSize];
-                    await networkStream.ReadAsync(idBytes, 0, idBytes.Length);
-                    Guid id = new Guid(Encoding.UTF8.GetString(idBytes));
-                    // </Delivery confirmation> 
-
-                    CAccessWrapperContract newFile = await GetFile(id);
-
-                    return newFile;
+                    writeBytes += chunkSize;
+                    Double progress = (Double)writeBytes / size * 100;
+                    onProgressPercentChanged.Report(progress);
                 }
             }
+
+            Guid fileId = await networkStream.ReadGuidAsync();
+            CAccessWrapperContract newFile = await GetFile(fileId);
+
+            return newFile;
         }
 
         public static async Task LoadEntity(String path, IStorageEntityUiModel entity, 
             IProgress<Double> onProgressPercentChanged, Int32 blockSize = 10000)
         {
             Guid ownerId = AuthController.AuthenticatedUserUiModel.Id;
-
-            EEntityTypeContract typeContract;
             Int64 size; 
 
             if (entity is CFileUiModel file)
             {
-                typeContract = EEntityTypeContract.File;
-                size = (Int32)file.Size; // TODO: Big files
+                size = file.Size;
             }
             else if (entity is CDirectoryUiModel dir)
             {
                 size = 1;// TODO: Dir sizes
-                typeContract = EEntityTypeContract.Directory;
                 path += ".zip";
             }
             else
@@ -356,14 +334,8 @@ namespace BitContainer.Presentation.Controllers.Proxies
 
                 using (NetworkStream networkStream = client.GetStream())
                 {
-                    byte[] typeBytes = BitConverter.GetBytes((Int32)typeContract);
-                    await networkStream.WriteAsync(typeBytes, 0, typeBytes.Length);
-
-                    byte[] idBytes = Encoding.UTF8.GetBytes(entity.Id.ToString());
-                    await networkStream.WriteAsync(idBytes, 0, idBytes.Length);
-
-                    byte[] ownerIdBytes = Encoding.UTF8.GetBytes(ownerId.ToString());
-                    await networkStream.WriteAsync(ownerIdBytes, 0, ownerIdBytes.Length);
+                    await networkStream.WriteGuidAsync(entity.Id);
+                    await networkStream.WriteStringAsync(AuthController.AuthenticatedUserUiModel.Token);
 
                     using (FileStream writer = File.OpenWrite(path))
                     {

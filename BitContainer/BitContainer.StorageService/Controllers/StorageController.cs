@@ -10,6 +10,7 @@ using BitContainer.Contracts.V1.Storage;
 using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 using BitContainer.Shared.Auth;
 using BitContainer.Shared.Http;
 using BitContainer.Shared.Http.Exceptions;
@@ -243,14 +244,14 @@ namespace BitContainer.StorageService.Controllers
         [HttpGet("upload_endpoint")]
         public ActionResult<CTransmissionEndPointContract> GetEndPointToUploadFile() 
         {
-            return _loadsManager.GetEndPointToUpload();
+            return _loadsManager.EndPointToUploadToServer;
         }
 
         [Authorize]
         [HttpGet("download_endpoint")]
         public  ActionResult<CTransmissionEndPointContract> GetEndPointToLoadFile()
         {
-            return _loadsManager.GetEndPointToDownload();
+            return _loadsManager.EndPointToDownloadFromServer;
         }
     }
 }

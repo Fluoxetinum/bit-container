@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.IO;
 using System.Text;
+using BitContainer.DataAccess.Mappers;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.StorageEntities;
 
 namespace BitContainer.DataAccess.DataProviders.Interfaces
 {
@@ -23,7 +28,12 @@ namespace BitContainer.DataAccess.DataProviders.Interfaces
         CFile GetFile(Guid parentId, Guid getterId, String name);
         CFile GetFile(Guid id);
 
+        IStorageEntity GetStorageEntity(Guid entityId);
+
         Byte[] GetAllFileData(Guid fileId);
+        Int32 UpdateFileSize(Guid fileId, Int64 newSize);
+
+        CFile AddEmptyFile(Guid parentId, Guid ownerId, String name, SqlCommand command);
 
         CFile AddFile(Guid parentId, Guid adderId, String name, Byte[] data);
         Int32 DeleteFile(Guid id);
