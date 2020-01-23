@@ -15,7 +15,7 @@ namespace BitContainer.DataAccess.Scripts
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+    #line 1 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class T4StorageDbInitScript : T4StorageDbInitScriptBase
     {
@@ -28,21 +28,21 @@ namespace BitContainer.DataAccess.Scripts
             this.Write("\r\nUSE [master]\r\nEXEC master.dbo.xp_create_subdir \"C:\\BitContainerData\"\r\n\r\nIF NOT " +
                     "EXISTS (SELECT * FROM sys.databases WHERE name = \'");
             
-            #line 6 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+            #line 6 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbName));
             
             #line default
             #line hidden
             this.Write("\')\r\nBEGIN\r\n\tCREATE DATABASE ");
             
-            #line 8 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+            #line 8 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbName));
             
             #line default
             #line hidden
             this.Write(";\r\n\tALTER DATABASE ");
             
-            #line 9 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+            #line 9 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbName));
             
             #line default
@@ -50,114 +50,78 @@ namespace BitContainer.DataAccess.Scripts
             this.Write(" ADD FILEGROUP [BitContainer-Storage-FileGroup] CONTAINS FILESTREAM;\r\n\tALTER DATA" +
                     "BASE ");
             
-            #line 10 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+            #line 10 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbName));
             
             #line default
             #line hidden
             this.Write(" ADD FILE (NAME = N\'BitContainer-Storage\', FILENAME = N\'C:\\BitContainerData\\_");
             
-            #line 10 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+            #line 10 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbName));
             
             #line default
             #line hidden
             this.Write("\') TO FILEGROUP [BitContainer-Storage-FileGroup];\r\nEND \r\nGO\r\n\r\nUSE ");
             
-            #line 14 "C:\Users\Andrey\Desktop\bit-container\BitContainer\DataAccess\Scripts\T4StorageDbInitScript.tt"
+            #line 14 "C:\Users\Andrey\Desktop\bit-container\BitContainer\BitContainer.DataAccess\Scripts\T4StorageDbInitScript.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DbName));
             
             #line default
             #line hidden
-            this.Write(";\r\nEXEC sp_configure filestream_access_level, 2\r\nRECONFIGURE\r\n\r\nIF NOT EXISTS (SE" +
-                    "LECT * FROM sysobjects where name=\'StorageEntities\')\r\nBEGIN\r\n\tCREATE TABLE Stora" +
-                    "geEntities (\r\n\t\tID UNIQUEIDENTIFIER ROWGUIDCOL PRIMARY KEY DEFAULT(newid()),\r\n\t\t" +
-                    "ParentID UNIQUEIDENTIFIER,\r\n\t\tOwnerID UNIQUEIDENTIFIER NOT NULL,\r\n\t\tName NVARCHA" +
-                    "R(300) NOT NULL,\r\n\t\tCreated DATETIME NOT NULL DEFAULT(getdate()),\r\n\t\tData VARBIN" +
-                    "ARY(MAX) FILESTREAM,\r\n\t\tSize INT,\r\n\r\n\t\tFOREIGN KEY(ParentID) REFERENCES StorageE" +
-                    "ntities(ID)\r\n\t);\r\nEND\r\n\r\nIF NOT EXISTS (SELECT * FROM sysobjects where name=\'Acc" +
-                    "essTypes\')\r\nBEGIN\r\n\tCREATE TABLE AccessTypes (\r\n\t\tID INT PRIMARY KEY,\r\n\t\tName VA" +
-                    "RCHAR(10) NOT NULL\r\n\t);\r\n\r\n\tINSERT INTO AccessTypes VALUES (0, \'NONE\'), (1, \'REA" +
-                    "D\'), (2, \'WRITE\');\r\nEND\r\n\r\nIF NOT EXISTS (SELECT * FROM sysobjects where name=\'S" +
-                    "hares\')\r\nBEGIN\r\n\tCREATE TABLE Shares (\r\n\t\tUserApprovedID UNIQUEIDENTIFIER NOT NU" +
-                    "LL,\r\n\t\tAccessTypeID INT NOT NULL,\r\n\t\tEntityID UNIQUEIDENTIFIER NOT NULL,\r\n\r\n\t\tFO" +
-                    "REIGN KEY(EntityID) REFERENCES StorageEntities(ID),\r\n\t\tFOREIGN KEY(AccessTypeID)" +
-                    " REFERENCES AccessTypes(ID)\r\n\t);\r\nEND\r\n\r\nIF NOT EXISTS (SELECT * FROM sysobjects" +
-                    " where name=\'Stats\')\r\nBEGIN\r\n\tCREATE TABLE Stats (\r\n\t\tUserID UNIQUEIDENTIFIER PR" +
-                    "IMARY KEY,\r\n\t\tFilesCount INT NOT NULL,\r\n\t\tDirectoriesCount INT NOT NULL,\r\n\t\tStor" +
-                    "ageSize INT NOT NULL\r\n\t);\r\nEND\r\n\r\n----------------------------------------------" +
-                    "------------- \r\n\r\nIF EXISTS (SELECT * FROM sys.objects WHERE   object_id = OBJEC" +
-                    "T_ID(N\'sp_GetAllDirChildren\') AND type IN ( N\'P\', N\'PC\' ))\r\nBEGIN\r\n\tDROP PROCEDU" +
-                    "RE [sp_GetAllDirChildren] \r\nEND\r\nGO\r\n\r\nCREATE PROCEDURE [sp_GetAllDirChildren] \r" +
-                    "\n\t@DirID UNIQUEIDENTIFIER \r\nAS\r\nBEGIN\r\n\t\r\n\tWITH entitiesReqursive AS \r\n\t\t\t( \r\n\t\t" +
-                    "\t\tSELECT ID, ParentID, Size, 1 AS Level \r\n\t\t\t\tFROM StorageEntities \r\n\t\t\t\tWHERE I" +
-                    "D = @DirID \r\n\t\t\t\tUNION ALL \r\n\t\t\t\tSELECT entites.ID, entites.ParentID, entites.Si" +
-                    "ze, entitiesReqursive.Level+1 AS Level \r\n\t\t\t\tFROM StorageEntities AS entites \r\n\t" +
-                    "\t\t\tINNER JOIN entitiesReqursive \r\n\t\t\t\tON entitiesReqursive.ID = entites.ParentID" +
-                    " \r\n\t\t\t) \r\n\t\t\tSELECT ID, Size, Level \r\n\t\t\tFROM entitiesReqursive \r\n\t\t\tORDER BY Le" +
-                    "vel;\r\n\r\nEND\r\nGO\r\n\r\n----------------------------------------------------------- \r" +
-                    "\n\r\nIF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N\'sp_GetOwne" +
-                    "rDirChildren\') AND type IN ( N\'P\', N\'PC\' ))\r\nBEGIN\r\n\tDROP PROCEDURE [dbo].[sp_Ge" +
-                    "tOwnerDirChildren] \r\nEND\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[sp_GetOwnerDirChildren] " +
-                    "\r\n\t@OwnerID UNIQUEIDENTIFIER,\r\n\t@ParentID UNIQUEIDENTIFIER = null\r\nAS\r\nBEGIN\r\n\t\r" +
-                    "\n\tSELECT ID, ParentID, OwnerID, Name, Created, Size, \r\n\t(CASE WHEN Shares.Entity" +
-                    "ID IS NULL THEN 0 ELSE 1 END) AS IsShared\r\n\tFROM StorageEntities \r\n\tLEFT OUTER J" +
-                    "OIN Shares ON StorageEntities.ID = Shares.EntityID\r\n\tWHERE ((@ParentID IS NULL A" +
-                    "ND ParentID IS NULL) OR (@ParentID IS NOT NULL AND ParentID = @ParentID))\r\n\tAND " +
-                    "OwnerID = @OwnerID;\r\n\r\nEND\r\nGO\r\n\r\n----------------------------------------------" +
-                    "------------- \r\n\r\nIF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_" +
-                    "ID(N\'sp_GetShareById\') AND type IN ( N\'P\', N\'PC\' ))\r\nBEGIN\r\n\tDROP PROCEDURE [dbo" +
-                    "].[sp_GetShareById] \r\nEND\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[sp_GetShareById] \r\n\t@Pe" +
-                    "rsonID UNIQUEIDENTIFIER,\r\n\t@EntityID UNIQUEIDENTIFIER\r\nAS\r\nBEGIN\r\n\t\r\nWITH entiti" +
-                    "esReqursive AS \r\n            ( \r\n\t\t\t\tSELECT ID, ParentID, 1 AS Level \r\n\t\t\t\tFROM " +
-                    "StorageEntities \r\n\t\t\t\tWHERE ID = @EntityID \r\n\t\t\t\tUNION ALL \r\n\t\t\t\tSELECT entites." +
-                    "ID, entites.ParentID, entitiesReqursive.Level+1 AS Level \r\n\t\t\t\tFROM StorageEntit" +
-                    "ies AS entites \r\n\t\t\t\tINNER JOIN entitiesReqursive \r\n\t\t\t\tON entitiesReqursive.Par" +
-                    "entID = entites.ID \r\n            ) \r\n            SELECT TOP(1) UserApprovedID, A" +
-                    "ccessTypes.Name AS AccessType, EntityID AS StorageEntityId, Level \r\n            " +
-                    "FROM Shares JOIN entitiesReqursive ON Shares.EntityID = entitiesReqursive.ID \r\n\t" +
-                    "\t\tJOIN AccessTypes ON Shares.AccessTypeID = AccessTypes.ID\r\n            WHERE Us" +
-                    "erApprovedID = @PersonID \r\n            ORDER BY Level;\r\nEND\r\nGO\r\n\r\n-------------" +
-                    "---------------------------------------------- \r\n\r\nIF EXISTS (SELECT * FROM sys." +
-                    "objects WHERE object_id = OBJECT_ID(N\'sp_GetSharedDirChildren\') AND type IN ( N\'" +
-                    "P\', N\'PC\' ))\r\nBEGIN\r\n\tDROP PROCEDURE [dbo].[sp_GetSharedDirChildren] \r\nEND\r\nGO\r\n" +
-                    "\r\nCREATE PROCEDURE [dbo].[sp_GetSharedDirChildren] \r\n\t@ParentID UNIQUEIDENTIFIER" +
-                    ",\r\n\t@PersonID UNIQUEIDENTIFIER,\r\n\t@ParentAccess VARCHAR(50)\r\nAS\r\nBEGIN\r\n\t\r\nSELEC" +
-                    "T DISTINCT StorageEntities.ID, ParentID, OwnerID, StorageEntities.Name, Created," +
-                    " Size, \r\n\r\n(CASE WHEN Shares.UserApprovedID IS NULL THEN @ParentAccess\r\n\t ELSE A" +
-                    "ccessTypes.Name \r\n\t END) AS AccessType \r\n\r\nFROM StorageEntities \r\nLEFT OUTER JOI" +
-                    "N Shares ON StorageEntities.ID = Shares.EntityID \r\nLEFT OUTER JOIN AccessTypes O" +
-                    "N AccessTypes.ID = Shares.AccessTypeID\r\nWHERE ParentID = @ParentID AND (Shares.U" +
-                    "serApprovedID = @PersonID OR Shares.UserApprovedID IS NULL)\r\n\r\nEND\r\nGO\r\n\r\n------" +
-                    "----------------------------------------------------- \r\n\r\nIF EXISTS (SELECT * FR" +
-                    "OM sys.objects WHERE object_id = OBJECT_ID(N\'sp_GetSharedRootChildren\') AND type" +
-                    " IN ( N\'P\', N\'PC\' ))\r\nBEGIN\r\n\tDROP PROCEDURE [dbo].[sp_GetSharedRootChildren] \r\n" +
-                    "END\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[sp_GetSharedRootChildren] \r\n\t@PersonID UNIQUE" +
-                    "IDENTIFIER\r\nAS\r\nBEGIN\r\n\t\r\nSELECT SE.ID, SE.ParentID, SE.OwnerID, SE.Name, SE.Cre" +
-                    "ated, T.Name AS AccessType\r\n                                      FROM Shares AS" +
-                    " S\r\n                                      JOIN StorageEntities AS SE ON SE.ID = " +
-                    "S.EntityID\r\n                                      JOIN AccessTypes AS T ON T.ID " +
-                    "= S.AccessTypeID\r\n                                      WHERE S.UserApprovedID =" +
-                    " @PersonID\r\n                                      AND NOT EXISTS \r\n\t\t\t\t\t\t\t\t\t  (S" +
-                    "ELECT S2.EntityID FROM Shares AS S2 WHERE S2.UserApprovedID = @PersonID AND S2.E" +
-                    "ntityID IN (SELECT ParentID FROM GetParents(SE.ID)));\r\n\r\nEND\r\nGO\r\n\r\n------------" +
-                    "----------------------------------------------- \r\n\r\nIF EXISTS (SELECT * FROM sys" +
-                    ".objects WHERE object_id = OBJECT_ID(N\'sp_RemoveDir\') AND type IN ( N\'P\', N\'PC\' " +
-                    "))\r\nBEGIN\r\n\tDROP PROCEDURE [dbo].[sp_RemoveDir] \r\nEND\r\nGO\r\n\r\nCREATE PROCEDURE [d" +
-                    "bo].[sp_RemoveDir] \r\n\t@DirID UNIQUEIDENTIFIER \r\nAS\r\nBEGIN\r\n\t\r\n\tDECLARE @children" +
-                    " TABLE(ID UNIQUEIDENTIFIER, Size INT, Level INT);\r\n\r\n\tINSERT @children EXEC sp_G" +
-                    "etAllDirChildren @DirID;\r\n\r\n\tDECLARE @Count INT = (SELECT COUNT(*) FROM @childre" +
-                    "n); \r\n\r\n\tDELETE FROM StorageEntities WHERE ID IN (SELECT ID FROM @children ORDER" +
-                    " BY Level ASC OFFSET 0 ROWS);\r\n\r\n\tSELECT @Count;\r\n\r\nEND\r\nGO\r\n\r\n-----------------" +
-                    "------------------\r\n\r\nIF OBJECT_ID(\'[dbo].[GetParents]\') IS NOT NULL\r\n  DROP FUN" +
-                    "CTION [dbo].[GetParents]\r\nGO\r\n\r\nCREATE FUNCTION [dbo].[GetParents]\r\n(\t\r\n\t@DirID " +
-                    "UNIQUEIDENTIFIER\r\n)\r\nRETURNS TABLE \r\nAS\r\nRETURN \r\n(\r\n\tWITH entitiesReqursive AS " +
-                    "\r\n            ( \r\n            SELECT ID, ParentID, 1 AS Level \r\n            FROM" +
-                    " StorageEntities \r\n            WHERE ID = @DirID \r\n            UNION ALL \r\n     " +
-                    "       SELECT entities.ID, entities.ParentID, entitiesReqursive.Level+1 AS Level" +
-                    " \r\n            FROM StorageEntities AS entities \r\n            INNER JOIN entitie" +
-                    "sReqursive \r\n            ON entitiesReqursive.ParentID = entities.ID \r\n         " +
-                    "   ) \r\n\tSELECT ParentID FROM entitiesReqursive\r\n)\r\n\r\n");
+            this.Write(@";
+EXEC sp_configure filestream_access_level, 2
+RECONFIGURE
+
+IF NOT EXISTS (SELECT * FROM sysobjects where name='StorageEntities')
+BEGIN
+	CREATE TABLE StorageEntities (
+		ID UNIQUEIDENTIFIER ROWGUIDCOL PRIMARY KEY DEFAULT(newid()),
+		ParentID UNIQUEIDENTIFIER,
+		OwnerID UNIQUEIDENTIFIER NOT NULL,
+		Name NVARCHAR(300) NOT NULL,
+		Created DATETIME NOT NULL DEFAULT(getdate()),
+		Data VARBINARY(MAX) FILESTREAM,
+		Size BIGINT,
+
+		FOREIGN KEY(ParentID) REFERENCES StorageEntities(ID)
+	);
+END
+
+IF NOT EXISTS (SELECT * FROM sysobjects where name='AccessTypes')
+BEGIN
+	CREATE TABLE AccessTypes (
+		ID INT PRIMARY KEY,
+		Name VARCHAR(10) NOT NULL
+	);
+
+	INSERT INTO AccessTypes VALUES (0, 'READ'), (1, 'WRITE');
+END
+
+IF NOT EXISTS (SELECT * FROM sysobjects where name='Shares')
+BEGIN
+	CREATE TABLE Shares (
+		UserApprovedID UNIQUEIDENTIFIER NOT NULL,
+		AccessTypeID INT NOT NULL,
+		EntityID UNIQUEIDENTIFIER NOT NULL,
+
+		FOREIGN KEY(EntityID) REFERENCES StorageEntities(ID),
+		FOREIGN KEY(AccessTypeID) REFERENCES AccessTypes(ID),
+	);
+END
+
+IF NOT EXISTS (SELECT * FROM sysobjects where name='Stats')
+BEGIN
+	CREATE TABLE Stats (
+		UserID UNIQUEIDENTIFIER PRIMARY KEY,
+		FilesCount INT NOT NULL,
+		DirectoriesCount INT NOT NULL,
+		StorageSize BIGINT NOT NULL
+	);
+END
+
+----------------------------------------------------------- 
+");
             return this.GenerationEnvironment.ToString();
         }
     }

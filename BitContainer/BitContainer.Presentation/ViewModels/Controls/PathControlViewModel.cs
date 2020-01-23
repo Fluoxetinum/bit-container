@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Controllers.EventParams;
+using BitContainer.Presentation.Controllers.Ui;
+using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
 using BitContainer.Presentation.ViewModels.Nodes;
@@ -16,8 +14,8 @@ namespace BitContainer.Presentation.ViewModels.Controls
     {
         private readonly FileSystemController _fileSystemController;
 
-        private ObservableCollection<CFileSystemNode> _currentPath;
-        public ObservableCollection<CFileSystemNode> CurrentPath
+        private ObservableCollection<FileSystemNode> _currentPath;
+        public ObservableCollection<FileSystemNode> CurrentPath
         {
             get => _currentPath;
             set
@@ -31,7 +29,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
         {
             _fileSystemController = fileSystemController;
 
-            CurrentPath = new ObservableCollection<CFileSystemNode>()
+            CurrentPath = new ObservableCollection<FileSystemNode>()
             {
                 _fileSystemController.Root
             };
@@ -39,19 +37,19 @@ namespace BitContainer.Presentation.ViewModels.Controls
             _fileSystemController.FileSystemEvents.DirectoryOpened += EventsControllerOnDirectoryOpened;
         }
 
-        public async void EventsControllerOnDirectoryOpened(object sender, FsNodeEventArgs e)
+        public async void EventsControllerOnDirectoryOpened(object sender, NodeOpenedEventArgs e)
         {
-            LinkedList<CFileSystemNode> path = await _fileSystemController.ComputePath(e.Node);
-            CurrentPath = new ObservableCollection<CFileSystemNode>(path);
+            LinkedList<FileSystemNode> path = await _fileSystemController.GetPathFromRoot(e.Node);
+            CurrentPath = new ObservableCollection<FileSystemNode>(path);
         }
 
         private ICommand _selectEntityCommand;
         public ICommand SelectEntityCommand =>
-            _selectEntityCommand ??= new RelayCommand<CFileSystemNode>(SelectEntity);
+            _selectEntityCommand ??= new RelayCommand<FileSystemNode>(SelectEntity);
 
-        public async void SelectEntity(CFileSystemNode dir)
+        public async void SelectEntity(FileSystemNode dir)
         {
-            await _fileSystemController.FetchChildren(dir);
+            await _fileSystemController.OpenDirectory(dir);
         }
         
         public void Dispose()

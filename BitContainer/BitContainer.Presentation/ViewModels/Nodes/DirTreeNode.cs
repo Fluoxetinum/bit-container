@@ -1,12 +1,16 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Controls;
 using BitContainer.Presentation.ViewModels.Base;
 
 namespace BitContainer.Presentation.ViewModels.Nodes
 {
     public class DirTreeNode : ViewModelBase
     {
-        private CFileSystemNode _fsNode;
-        public CFileSystemNode FsNode
+        public TreeViewItem ViewItem { get; set; }
+
+
+        private FileSystemNode _fsNode;
+        public FileSystemNode FsNode
         {
             get => _fsNode;
             set
@@ -27,18 +31,15 @@ namespace BitContainer.Presentation.ViewModels.Nodes
             }
         }
 
-        private static ObservableCollection<DirTreeNode> _childrenNull;
-        public static ObservableCollection<DirTreeNode> ChildrenNull =>
-            _childrenNull ??= new ObservableCollection<DirTreeNode>()
-                {new DirTreeNode()};
+        public static ObservableCollection<DirTreeNode> NoChildren = 
+            new ObservableCollection<DirTreeNode>() {new DirTreeNode()};
 
-        public static DirTreeNode Create(CFileSystemNode n)
+        private DirTreeNode(){}
+
+        public DirTreeNode(FileSystemNode n)
         {
-            return new DirTreeNode()
-            {
-                FsNode = n,
-                Children = ChildrenNull
-            };
+            FsNode = n;
+            Children = NoChildren;
         }
     }
 }

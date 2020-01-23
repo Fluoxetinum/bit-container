@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.IO;
-using System.Data.Sql;
 using System.Threading.Tasks;
-using BitContainer.DataAccess.Queries;
 using BitContainer.DataAccess.Queries.Base;
 using BitContainer.DataAccess.Scripts;
+using Microsoft.Extensions.Logging;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
@@ -14,8 +12,9 @@ namespace BitContainer.DataAccess
     public class CSqlDbHelper : ISqlDbHelper
     {
         private readonly String _connectionString;
+        private readonly ILogger<CSqlDbHelper> _logger;
 
-        public CSqlDbHelper(String sqlServerConnectionString, IT4DbInitScript initScript)
+        public CSqlDbHelper(String sqlServerConnectionString, IT4DbInitScript initScript, ILogger<CSqlDbHelper> logger)
         {
             using (var connection = new SqlConnection(sqlServerConnectionString))
             {
@@ -24,85 +23,80 @@ namespace BitContainer.DataAccess
             }
 
             _connectionString = $"{sqlServerConnectionString}Database={initScript.DbName}";
+            _logger = logger;
         }
         
         public T ExecuteQuery<T>(ISqlQuery<T> query)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                SqlCommand command = connection.CreateCommand();
-                return query.Execute(command);
-            }
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+            SqlCommand command = connection.CreateCommand();
+            return query.Execute(command);
         }
 
         public void ExecuteTransaction(Action<SqlCommand> executionAlgorithm)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                SqlCommand command = connection.CreateCommand();
-                SqlTransaction transaction = connection.BeginTransaction();
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+            SqlCommand command = connection.CreateCommand();
+            SqlTransaction transaction = connection.BeginTransaction();
 
-                command.Connection = connection;
-                command.Transaction = transaction;
+            command.Connection = connection;
+            command.Transaction = transaction;
+            try
+            {
+                executionAlgorithm(command);
+                transaction.Commit();
+            }
+            catch (Exception queryEx)
+            {
+                _logger.LogError(queryEx, $"Transaction on '{transaction.Connection.ConnectionString}' failed," +
+                                          $" last command - {command.CommandText}");
+
                 try
                 {
-                    executionAlgorithm(command);
-
-                    transaction.Commit();
+                    transaction.Rollback();
                 }
-                catch (Exception queryEx)
+                catch (Exception rollbackEx)
                 {
-                    //TODO: Implement exception handling
-                    //TODO: Исключения, возникающие здесь не записываются в логи
-
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch (Exception rollbackEx)
-                    {
-                        throw;
-                    }
-
+                    _logger.LogError(rollbackEx, $"Rollback on '{transaction.Connection.ConnectionString}' failed," +
+                                                 $" last command - {command.CommandText}");
                     throw;
                 }
+
             }
         }
 
         public async Task ExecuteTransactionAsync(Func<SqlCommand, Task> executionAlgorithm)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                SqlCommand command = connection.CreateCommand();
-                SqlTransaction transaction = connection.BeginTransaction();
+            await using var connection = new SqlConnection(_connectionString);
 
-                command.Connection = connection;
-                command.Transaction = transaction;
+            connection.Open();
+            SqlCommand command = connection.CreateCommand();
+            SqlTransaction transaction = connection.BeginTransaction();
+
+            command.Connection = connection;
+            command.Transaction = transaction;
+            try
+            {
+                await executionAlgorithm(command);
+                transaction.Commit();
+            }
+            catch (Exception queryEx)
+            {
+                _logger.LogError(queryEx, $"Transaction on '{transaction.Connection.ConnectionString}' failed," +
+                                          $" last command - {command.CommandText}");
                 try
                 {
-                    await executionAlgorithm(command);
-
-                    transaction.Commit();
-                    //TODO: Исключения, возникающие здесь не записываются в логи
+                    transaction.Rollback();
                 }
-                catch (Exception queryEx)
+                catch (Exception rollbackEx)
                 {
-                    //TODO: Implement exception handling
-
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch (Exception rollbackEx)
-                    {
-                        throw;
-                    }
-
+                    _logger.LogError(rollbackEx, $"Rollback on '{transaction.Connection.ConnectionString}' failed," +
+                                                 $" last command - {command.CommandText}");
                     throw;
                 }
+
             }
         }
     }

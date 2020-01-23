@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BitContainer.DataAccess.DataProviders.Interfaces;
+﻿using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Queries;
 
 namespace BitContainer.DataAccess.DataProviders

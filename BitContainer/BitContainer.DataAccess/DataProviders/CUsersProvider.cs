@@ -1,8 +1,8 @@
 ﻿using System;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.Shares;
 using BitContainer.DataAccess.Queries.Auth;
-using BitContainer.DataAccess.Queries.Stats;
+using BitContainer.Shared.Models;
 
 namespace BitContainer.DataAccess.DataProviders
 {
@@ -20,34 +20,29 @@ namespace BitContainer.DataAccess.DataProviders
             var query = new AddNewUserQuery(name, passwordHash, salt);
             return _dbHelper.ExecuteQuery(query);
         }
-        
+
         public Byte[] GetSalt(String userName)
         {
             var query = new GetSaltQuery(userName);
             return _dbHelper.ExecuteQuery(query);
         }
 
-        public CUser GetUserWithCredentials(String name, Byte[] passwordHash)
+        public CUser GetUserWithCredentials(String userName, Byte[] passwordHash)
         {
-            var query = new GetUserWithCredentialsQuery(name, passwordHash);
+            var query = new GetUserWithCredentialsQuery(userName, passwordHash);
             return _dbHelper.ExecuteQuery(query);
         }
 
-        public CUser GetUserWithName(String name)
+        public CUser GetUserWithName(String userName)
         {
-            var query = new GetUserWithNameQuery(name);
+            var query = new GetUserWithNameQuery(userName);
             return _dbHelper.ExecuteQuery(query);
         }
 
-        public Int32 RemoveUser(Guid id)
+        public Int32 RemoveUser(CUserId userId)
         {
-            Int32 result = -1;
-            _dbHelper.ExecuteTransaction(executionAlgorithm:(command) =>
-            {
-                var query = new RemoveUserQuery(id);
-                result = query.Execute(command);
-            });
-            return result;
+            var query = new RemoveUserQuery(userId);
+            return _dbHelper.ExecuteQuery(query);
         }
     }
 }

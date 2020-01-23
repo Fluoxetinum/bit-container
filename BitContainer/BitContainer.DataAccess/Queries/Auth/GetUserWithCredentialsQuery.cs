@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Data.SqlClient;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Mappers;
+using BitContainer.DataAccess.Mappers.Shares;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.Shares;
 using BitContainer.DataAccess.Queries.Base;
 
 namespace BitContainer.DataAccess.Queries.Auth
@@ -12,10 +15,10 @@ namespace BitContainer.DataAccess.Queries.Auth
         public Byte[] PasswordHash { get; set; }
 
         private static readonly String QueryString = 
-            $"SELECT {DbNames.Users.Id}, {DbNames.Users.Name} " +
+            $"SELECT {DbNames.Users.PxId}, {DbNames.Users.PxName} " +
             $"FROM {DbNames.Users} " +
-            $"WHERE {DbNames.Users.Name} = @{nameof(Name)} " +
-            $"AND {DbNames.Users.PassHash} = @{nameof(PasswordHash)}";
+            $"WHERE {DbNames.Users.PxName} = @{nameof(Name)} " +
+            $"AND {DbNames.Users.PxPassHash} = @{nameof(PasswordHash)}";
 
         public GetUserWithCredentialsQuery(
             String name,

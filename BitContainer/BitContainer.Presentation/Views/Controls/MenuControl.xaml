@@ -31,17 +31,17 @@
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <TextBlock Margin="5">Files :</TextBlock>
-                        <TextBlock Margin="0,5,0,5" Text="{Binding CurrentUserUiModel.FilesCount}"></TextBlock>
+                        <TextBlock Margin="0,5,0,5" Text="{Binding CurrentUserUi.FilesCount}"></TextBlock>
                         <TextBlock Margin="5">Dirs :</TextBlock>
-                        <TextBlock Margin="0,5,0,5" Text="{Binding CurrentUserUiModel.DirsCount}"></TextBlock>
+                        <TextBlock Margin="0,5,0,5" Text="{Binding CurrentUserUi.DirsCount}"></TextBlock>
                         <TextBlock Margin="5">Space : </TextBlock>
-                        <TextBlock Margin="0,5,0,5" Text="{Binding CurrentUserUiModel.StorageSizeMb}"></TextBlock>
+                        <TextBlock Margin="0,5,0,5" Text="{Binding CurrentUserUi.StorageSizeMb}"></TextBlock>
                         <TextBlock Margin="0,5,5,5">MB</TextBlock>
                     </StackPanel>
                 </Border>
                 <TextBlock Margin="10,0,10,0"
                            VerticalAlignment="Center"
-                           Text="{Binding CurrentUserUiModel.Name}"/>
+                           Text="{Binding CurrentUserUi.Name}"/>
             </StackPanel>
         
 

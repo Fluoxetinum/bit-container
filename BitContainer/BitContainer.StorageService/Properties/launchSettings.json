@@ -18,7 +18,7 @@
     },
     "StorageService": {
       "commandName": "Executable",
-      "executablePath": "..\\netcoreapp3.0\\BitContainer.StorageService.exe",
+      "executablePath": "..\\netcoreapp3.0\\BitContainer.Service.Storage.exe",
       "commandLineArgs": "http://localhost:53833",
       "launchBrowser": true,
       "launchUrl": "files/upload",

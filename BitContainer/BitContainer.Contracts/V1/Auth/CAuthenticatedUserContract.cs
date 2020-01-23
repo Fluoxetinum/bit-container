@@ -1,4 +1,5 @@
 ﻿using System;
+using BitContainer.Contracts.V1.Storage;
 
 namespace BitContainer.Contracts.V1.Auth
 {

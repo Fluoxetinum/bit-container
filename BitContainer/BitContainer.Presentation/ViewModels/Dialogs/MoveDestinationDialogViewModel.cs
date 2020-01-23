@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
 using BitContainer.Presentation.Controllers.EventParams;
+using BitContainer.Presentation.Controllers.Service;
+using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
 using BitContainer.Presentation.ViewModels.Controls;
@@ -40,12 +42,12 @@ namespace BitContainer.Presentation.ViewModels.Dialogs
             }
         }
 
-        public CFileSystemNode SelectedParent =>
+        public FileSystemNode SelectedParent =>
             Path.CurrentPath.Last();
         
         public MoveDestinationDialogViewModel()
         {
-            _fileSystemController = new FileSystemController();
+            _fileSystemController = DependecyController.GetFileSystemController();
             DirTree = new DirTreeControlViewModel(_fileSystemController);
             Path = new PathControlViewModel(_fileSystemController);
         }

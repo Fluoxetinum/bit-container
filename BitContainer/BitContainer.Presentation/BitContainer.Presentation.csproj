@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BitContainer.Contracts\BitContainer.Contracts.csproj" />
+    <ProjectReference Include="..\BitContainer.HttpLayer\BitContainer.Http.csproj" />
     <ProjectReference Include="..\BitContainer.Shared\BitContainer.Shared.csproj" />
   </ItemGroup>
 

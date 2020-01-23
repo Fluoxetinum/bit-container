@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
-using BitContainer.Shared.Http;
+using BitContainer.Http.Proxies;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BitContainer.StorageService.Controllers
+namespace BitContainer.Service.Storage.Controllers
 {
     [Route("logger")]
     [ApiController]
     public class LogsProxyController : ControllerBase
     {
+        private readonly ILogServiceProxy _logSaServiceProxy;
+
+        public LogsProxyController(ILogServiceProxy logServiceProxy)
+        {
+            _logSaServiceProxy = logServiceProxy;
+        }
+
         [HttpPost]
         [Route("log")]
         public async Task<ActionResult> Log(CNlogMessageContract entry)
         {
-            await CLogServiceProxy.LogRequest(entry);
+            await _logSaServiceProxy.LogRequest(entry);
             return Ok();
         }
     }

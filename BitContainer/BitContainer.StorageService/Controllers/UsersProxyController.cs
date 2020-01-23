@@ -1,25 +1,29 @@
-﻿using System;
-using System.Threading.Tasks;
-using BitContainer.Contracts.V1;
+﻿using System.Threading.Tasks;
 using BitContainer.Contracts.V1.Auth;
+using BitContainer.Contracts.V1.Storage;
+using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Models;
-using BitContainer.Shared.Http;
-using BitContainer.Shared.Http.Exceptions;
+using BitContainer.DataAccess.Models.StorageEntities;
+using BitContainer.Http.Exceptions;
+using BitContainer.Http.Proxies;
+using BitContainer.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace BitContainer.StorageService.Controllers
+namespace BitContainer.Service.Storage.Controllers
 {
     [Route("users")]
     [ApiController]
     public class UsersProxyController : ControllerBase
     {
         private readonly IStatsProvider _statsProvider;
+        private readonly ISqlDbHelper _sqlDbHelper;
+        private readonly IAuthServiceProxy _authServiceProxy;
 
-        public UsersProxyController(IStatsProvider statsProvider)
+        public UsersProxyController(IStatsProvider statsProvider, IAuthServiceProxy authServiceProxy, ISqlDbHelper dbHelper)
         {
             _statsProvider = statsProvider;
+            _authServiceProxy = authServiceProxy;
+            _sqlDbHelper = dbHelper;
         }
 
         [HttpPost]
@@ -30,9 +34,12 @@ namespace BitContainer.StorageService.Controllers
 
             try
             {
-                await AuthServiceProxy.RegisterRequest(credentials);
-                CUserContract user = await AuthServiceProxy.GetUserWithName(credentials.UserName);
-                _statsProvider.AddNewStats(user.Id);
+                await _sqlDbHelper.ExecuteTransactionAsync(async (command) =>
+                {
+                    await _authServiceProxy.RegisterRequest(credentials);
+                    CUserContract user = await _authServiceProxy.GetUserWithName(credentials.UserName);
+                    _statsProvider.AddNewStats(command, new CUserId(user.Id));
+                });
             }
             catch (UsernameExistsException e)
             {
@@ -51,8 +58,8 @@ namespace BitContainer.StorageService.Controllers
 
             try
             {
-                contract = await AuthServiceProxy.LogInRequest(credentials);
-                CUserStats stats = _statsProvider.GetStats(contract.User.Id);
+                contract = await _authServiceProxy.LogInRequest(credentials);
+                CStats stats = _statsProvider.GetStats(new CUserId(contract.User.Id));
                 contract.Stats = new CStatsContract(stats.FilesCount, stats.DirsCount, stats.StorageSize);
             }
             catch (NoSuchUserException e)

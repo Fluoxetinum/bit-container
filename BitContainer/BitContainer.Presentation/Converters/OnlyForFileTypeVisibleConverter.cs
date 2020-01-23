@@ -7,23 +7,20 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using BitContainer.Presentation.Models;
+using BitContainer.Presentation.ViewModels.Nodes;
 
 namespace BitContainer.Presentation.Converters
 {
-    [ValueConversion(typeof(IAccessWrapperUiModel), typeof(Visibility))]
+    [ValueConversion(typeof(FileSystemNode), typeof(Visibility))]
     public class OnlyForFileTypeVisibleConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is IAccessWrapperUiModel accessModel)
+            if (value is FileSystemNode node 
+                && node.Entity is CFileUi file
+                && parameter is String ext)
             {
-                if (accessModel.Entity is CFileUiModel file)
-                {
-                    if (parameter is String ext)
-                    {
-                        return file.Extension.Equals(ext) ? Visibility.Visible : Visibility.Collapsed;
-                    }
-                }
+                return file.Extension.Equals(ext) ? Visibility.Visible : Visibility.Collapsed;
             }
 
             return Visibility.Collapsed;

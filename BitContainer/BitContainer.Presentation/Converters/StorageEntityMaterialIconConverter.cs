@@ -6,20 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using BitContainer.Presentation.Models;
+using BitContainer.Presentation.ViewModels.Nodes;
 using MaterialDesignThemes.Wpf;
 
 namespace BitContainer.Presentation.Converters
 {
-    [ValueConversion(typeof(IAccessWrapperUiModel), typeof(PackIconKind))]
+    [ValueConversion(typeof(FileSystemNode), typeof(PackIconKind))]
     public class StorageEntityMaterialIconConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var accessModel = value as IAccessWrapperUiModel;
-            if (accessModel == null) return PackIconKind.QuestionMark;
+            var node = value as FileSystemNode;
+            if (node == null) return PackIconKind.QuestionMark;
 
-            if (accessModel.Entity is CDirectoryUiModel) return PackIconKind.Folder;
-            else if (accessModel.Entity is CFileUiModel) return PackIconKind.File;
+            if (node.Entity is CDirectoryUi) return PackIconKind.Folder;
+            else if (node.Entity is CFileUi) return PackIconKind.File;
             return PackIconKind.QuestionMark;
         }
 

@@ -1,26 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Scripts;
-using BitContainer.Shared.Auth;
-using BitContainer.Shared.Middleware;
+using BitContainer.Services.Shared;
+using BitContainer.Services.Shared.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 
-namespace BitContainer.AuthService
+namespace BitContainer.Service.Auth
 {
     public class Startup
     {
@@ -48,7 +41,7 @@ namespace BitContainer.AuthService
 
             T4AuthDbInitScript script = new T4AuthDbInitScript(DbNames.AuthDbName);
             services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
-                new CSqlDbHelper(sqlServerConnectionString, script));
+                new CSqlDbHelper(sqlServerConnectionString, script, serviceProvider.GetService<ILogger<CSqlDbHelper>>()));
 
             services.AddSingleton<IUsersProvider, CUsersProvider>();
         }

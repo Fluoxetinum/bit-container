@@ -132,32 +132,12 @@
                                         Height="80">
                                             <mdesign:Card.ContextMenu>
                                                 <ContextMenu>
-                                                    <!-- TODO: Implement editing. -->
-                                                    <!--<MenuItem Header="Edit" 
-                                                              Visibility="{Binding AccessWrapper,
-                                                        Converter={StaticResource FileTypeVisibleConverter},
-                                                        ConverterParameter='.txt'}"
-                                                              Command="{Binding Source={StaticResource DataContextProxy}, Path=Data.EditTextFileCommand}"
-                                                              CommandParameter="{Binding}">
-                                                        <MenuItem.Icon>
-                                                            <mdesign:PackIcon Kind="Edit" 
-                                                                              Foreground="{DynamicResource PrimaryHueMidBrush}"></mdesign:PackIcon>
-                                                        </MenuItem.Icon>
-                                                    </MenuItem>-->
                                                     <MenuItem Header="Open" 
-                                                              Visibility="{Binding AccessWrapper, 
-                                                        Converter={StaticResource DirectoryVisibleConverter}}"
-
+                                                              Visibility="{Binding Converter={StaticResource DirectoryVisibleConverter}}"
                                                               Command="{Binding Source={StaticResource DataContextProxy}, Path=Data.SelectEntityCommand}"
                                                               CommandParameter="{Binding}">
                                                         <MenuItem.Icon>
                                                             <mdesign:PackIcon Kind="FolderOpen"
-                                                                              Foreground="{DynamicResource PrimaryHueMidBrush}"></mdesign:PackIcon>
-                                                        </MenuItem.Icon>
-                                                    </MenuItem>
-                                                    <MenuItem Header="Info">
-                                                        <MenuItem.Icon>
-                                                            <mdesign:PackIcon Kind="InfoCircle"
                                                                               Foreground="{DynamicResource PrimaryHueMidBrush}"></mdesign:PackIcon>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
@@ -171,7 +151,7 @@
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="Share"
-                                                              Visibility="{Binding AccessWrapper, Converter={StaticResource OnlyOwnEntitiesAccessVisibleConverter}}"
+                                                              Visibility="{Binding Converter={StaticResource OnlyOwnEntitiesAccessVisibleConverter}}"
                                                               Command="{Binding Source={StaticResource DataContextProxy}, Path=Data.ShareCommand}"
                                                               CommandParameter="{Binding}">
                                                         <MenuItem.Icon>
@@ -181,7 +161,7 @@
                                                     </MenuItem>
                                                     <Separator></Separator>
                                                     <MenuItem Header="Rename"
-                                                              Visibility="{Binding AccessWrapper, Converter={StaticResource WriteAccessVisibleConverter}}"
+                                                              Visibility="{Binding Converter={StaticResource WriteAccessVisibleConverter}}"
                                                               Command="{Binding Source={StaticResource DataContextProxy}, Path=Data.RenameCommand}"
                                                               CommandParameter="{Binding}">
                                                         <MenuItem.Icon>
@@ -198,7 +178,7 @@
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="Delete"
-                                                              Visibility="{Binding AccessWrapper, Converter={StaticResource WriteAccessVisibleConverter}}"
+                                                              Visibility="{Binding Converter={StaticResource WriteAccessVisibleConverter}}"
                                                               Command="{Binding Source={StaticResource DataContextProxy}, Path=Data.DeleteCommand}"
                                                               CommandParameter="{Binding}">
                                                         <MenuItem.Icon>
@@ -221,14 +201,14 @@
                                                 </Grid.RowDefinitions>
                                                 <Grid.ToolTip>
                                                     <TextBlock Grid.Row="1" 
-                                                               Text="{Binding AccessWrapper.Entity.Name}"
+                                                               Text="{Binding Share.Entity.Name}"
                                                                HorizontalAlignment="Center"
                                                                TextWrapping="Wrap">
                                                     </TextBlock>
                                                 </Grid.ToolTip>
-                                                <Image Grid.Row="0" Source="{Binding AccessWrapper, Converter={StaticResource EntityIconConverter}}"></Image>
+                                                <Image Grid.Row="0" Source="{Binding Converter={StaticResource EntityIconConverter}}"></Image>
                                                 <TextBlock Grid.Row="1" 
-                                                           Text="{Binding AccessWrapper.Entity.Name}"
+                                                           Text="{Binding Share.Entity.Name}"
                                                            HorizontalAlignment="Center"
                                                            TextWrapping="Wrap">
                                                 </TextBlock>

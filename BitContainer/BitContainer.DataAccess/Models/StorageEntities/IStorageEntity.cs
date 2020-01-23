@@ -1,13 +1,14 @@
 ﻿using System;
+using BitContainer.Shared.Models;
 
 namespace BitContainer.DataAccess.Models.StorageEntities
 {
     public interface IStorageEntity
     {
-        Guid Id { get; }
-        Guid ParentId { get;  }
-        Guid OwnerId { get;  }
-        String Name { get;  }
+        CStorageEntityId Id { get; }
+        CStorageEntityId ParentId { get;  }
+        CUserId OwnerId { get; }
+        String Name { get; }
         DateTime Created { get; }
     } 
 }

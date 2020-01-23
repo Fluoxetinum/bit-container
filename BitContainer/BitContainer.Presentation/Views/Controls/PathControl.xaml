@@ -22,7 +22,7 @@
                                         FontWeight="Normal"
                                         Command="{Binding ElementName=ThisControl, Path=DataContext.SelectEntityCommand}"
                                         CommandParameter="{Binding}"
-                                        Content="{Binding AccessWrapper.Entity.Name}">
+                                        Content="{Binding Share.Entity.Name}">
                             </Button>
                             <materialDesign:PackIcon Kind="KeyboardArrowRight"
                                                   Foreground="{DynamicResource PrimaryHueLightBrush}"

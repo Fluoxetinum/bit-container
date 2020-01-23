@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using BitContainer.Shared.Models;
 
 namespace BitContainer.Contracts.V1.Auth
 {

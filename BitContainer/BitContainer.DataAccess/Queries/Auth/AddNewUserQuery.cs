@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Queries.Base;
 
 namespace BitContainer.DataAccess.Queries.Auth
@@ -12,7 +13,7 @@ namespace BitContainer.DataAccess.Queries.Auth
 
         private static readonly String QueryString =
             $"INSERT INTO {DbNames.Users} " +
-            $"({DbNames.Users.Name}, {DbNames.Users.PassHash}, {DbNames.Users.Salt}) " +
+            $"({DbNames.Users.PxName}, {DbNames.Users.PxPassHash}, {DbNames.Users.PxSalt}) " +
             $"VALUES (@{nameof(Name)}, @{nameof(PasswordHash)}, @{nameof(Salt)});";
 
         public AddNewUserQuery(String name, Byte[] passwordHash, Byte[] salt)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
+using BitContainer.Presentation.Controllers.Service;
 using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Base;
@@ -10,7 +11,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
 {
     public class MenuControlViewModel : NavigatableViewModelBase
     {
-        public CUserUiModel CurrentUserUiModel => AuthController.AuthenticatedUserUiModel;
+        public CUserUi CurrentUserUi => CAuthController.CurrentUser;
 
         private ICommand _logOutCommand;
 
@@ -19,7 +20,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
 
         public void LogOut(Object data)
         {
-            AuthController.LogOut();
+            CAuthController.LogOut();
             NavigationController.GoToLoginPage();
         }
     }

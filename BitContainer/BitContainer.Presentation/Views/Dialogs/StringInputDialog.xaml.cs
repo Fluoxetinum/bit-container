@@ -22,6 +22,7 @@ namespace BitContainer.Presentation.Views.Dialogs
             Message = message;
             InitializeComponent();
             DirNameBox.Text = firstInput;
+            DirNameBox.Focus();
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

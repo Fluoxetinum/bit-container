@@ -1,16 +1,17 @@
 ﻿using System;
+using BitContainer.Shared.Models;
 
 namespace BitContainer.DataAccess.Models.StorageEntities
 {
     public class CDirectory : IStorageEntity
     {
-        public Guid Id { get; }
-        public Guid ParentId { get; }
-        public Guid OwnerId { get; }
+        public CStorageEntityId Id { get; }
+        public CStorageEntityId ParentId { get; }
+        public CUserId OwnerId { get; }
         public String Name { get; }
         public DateTime Created { get; }
 
-        public CDirectory(Guid id, Guid parentId, Guid ownerId, String name, DateTime created)
+        public CDirectory(CStorageEntityId id, CStorageEntityId parentId, CUserId ownerId, String name, DateTime created)
         {
             Id = id;
             ParentId = parentId;
@@ -18,5 +19,8 @@ namespace BitContainer.DataAccess.Models.StorageEntities
             Name = name;
             Created = created;
         }
+
+        public static CDirectory Root = new CDirectory();
+        private CDirectory() => Id = CStorageEntityId.RootId; 
     }
 }

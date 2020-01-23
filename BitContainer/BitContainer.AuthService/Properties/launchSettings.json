@@ -18,7 +18,7 @@
     },
     "BitContainer.AuthService": {
       "commandName": "Executable",
-      "executablePath": "..\\netcoreapp3.0\\BitContainer.AuthService.exe",
+      "executablePath": "..\\netcoreapp3.0\\BitContainer.Service.Auth.exe",
       "commandLineArgs": "http://localhost:59884",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",

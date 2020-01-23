@@ -7,28 +7,24 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
-using BitContainer.Contracts.V1.Storage;
 using BitContainer.DataAccess;
-using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Helpers;
-using BitContainer.DataAccess.Mappers;
-using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.Shares;
 using BitContainer.DataAccess.Models.StorageEntities;
-using BitContainer.DataAccess.Queries.Store;
-using BitContainer.Shared;
-using BitContainer.Shared.Auth;
+using BitContainer.DataAccess.Queries.StorageEntites;
+using BitContainer.Services.Shared;
+using BitContainer.Shared.Models;
 using BitContainer.Shared.StreamHelpers;
-using BitContainer.StorageService.Helpers;
 using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.SqlServer.Management.Common;
 
-namespace BitContainer.StorageService.Managers
+namespace BitContainer.Service.Storage.Managers
 {
     public class CLoadsManager : ILoadsManager
     {
@@ -63,22 +59,23 @@ namespace BitContainer.StorageService.Managers
             _uploadToServerTask = Task.Run(StartUploadToServerListener);
         }
 
-        private Boolean CheckUserRights(String jwtString, Guid entityId, ERestrictedAccessType accessType, out Guid userId)
+        private Boolean CheckToken(String jwtString, out CUserId userId)
         {
-            userId = Guid.Empty;
+            userId = new CUserId();
             var jwtHandler = new JwtSecurityTokenHandler();
             TokenValidationParameters validParams = AuthOptions.GetTokenValidationParameters();
             try
             {
                 ClaimsPrincipal principal = jwtHandler.ValidateToken(jwtString, validParams, out _);
-                userId = new Guid(principal.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
-                ERestrictedAccessType userAccess = _storageProvider.Shares.CheckStorageEntityAccess(entityId, userId);
-                return userAccess >= accessType;
+                Guid guidId = new Guid(principal.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
+                userId = new CUserId(guidId);
             }
             catch (SecurityTokenException)
             {
                 return false;
             }
+
+            return true;
         }
 
         private async Task StartDownloadFromServer()
@@ -118,12 +115,25 @@ namespace BitContainer.StorageService.Managers
         {
             await using NetworkStream networkStream = client.GetStream();
 
-            Guid id = await networkStream.ReadGuidAsync();
+            CStorageEntityId id = new CStorageEntityId(await networkStream.ReadGuidAsync());
             String jwt = await networkStream.ReadStringAsync();
+            CUserId userId;
+            if (!CheckToken(jwt, out userId)) return;
 
-            if (!CheckUserRights(jwt, id, ERestrictedAccessType.Read, out _)) return;
+            try
+            {
+                _storageProvider.Validator.EntityExists(id).HasReadAccess(userId);
+            }
+            catch (InvalidArgumentException)
+            {
+                return;
+            }
+            catch (AuthenticationException)
+            {
+                return;
+            }
 
-            IStorageEntity entity = _storageProvider.StorageEntities.GetStorageEntity(id);
+            IStorageEntity entity = _storageProvider.Entities.GetStorageEntity(id);
 
             switch (entity)
             {
@@ -140,65 +150,49 @@ namespace BitContainer.StorageService.Managers
         {
             await _dbHelper.ExecuteTransactionAsync(async (command) =>
             {
-                var query = new GetFileStreamPathQuery(file.Id);
-                CFileStreamInfo fileStreamInfo = query.Execute(command);
-                await using var fileStream = 
-                    new SqlFileStream(fileStreamInfo.Path, fileStreamInfo.TransactionContext, FileAccess.Read);
-                
+                await using var fileStream = _storageProvider.Entities.GetFileStream(command, file.Id, FileAccess.Read);
                 await StreamEx.WriteToStream(fromStream:fileStream, toStream:clientStream, file.Size);
             });
         }
 
         private async Task PassDirArchiveToClient(NetworkStream networkStream, CDirectory dirToPass)
         {
-            Dictionary<Int32, List<IStorageEntity>> children = 
-                _storageProvider.StorageEntities.GetAllChildren(dirToPass.Id);
+            SortedDictionary<Int32, List<IStorageEntity>> children = 
+                _storageProvider.Entities.GetChildrenAsc(dirToPass.Id);
 
-            MemoryStream memory = new MemoryStream();
-            using (ZipArchive archive = new ZipArchive(memory, ZipArchiveMode.Create))
+            using ZipArchive archive = new ZipArchive(networkStream, ZipArchiveMode.Create);
+
+            Dictionary<CStorageEntityId, String> paths = new Dictionary<CStorageEntityId, String>();
+            paths[dirToPass.Id] = $@"{dirToPass.Name}\";
+            archive.CreateEntry(paths[dirToPass.Id]);
+
+            foreach (var level in children)
             {
-                Int32 level = 1;
-
-                IStorageEntity rootDir = children[level].Single();
-                Dictionary<Guid, String> paths = new Dictionary<Guid, String>();
-                paths[rootDir.Id] = $@"{rootDir.Name}\";
-                archive.CreateEntry(paths[rootDir.Id]);
-
-                level++;
-
-                while (children.ContainsKey(level))
+                foreach (var storageEntity in level.Value)
                 {
-                    List<IStorageEntity> entity = children[level];
-
-                    foreach (var storageEntity in entity)
+                    switch (storageEntity)
                     {
-                        switch (storageEntity)
-                        {
-                            case CFile file:
-                                byte[] fileData = _storageProvider.StorageEntities.GetAllFileData(file.Id);
+                        case CFile file:
+
+                            await _dbHelper.ExecuteTransactionAsync(async (command) =>
+                            {
+                                await using var fileStream = _storageProvider.Entities.GetFileStream(command, file.Id, FileAccess.Read);
+
                                 ZipArchiveEntry entry = archive.CreateEntry($@"{paths[file.ParentId]}{file.Name}");
+                                await StreamEx.WriteToStream(fromStream:fileStream, toStream:entry.Open(), file.Size);
+                            });
 
-                                using (var stream = entry.Open())
-                                {
-                                    await stream.WriteAsync(fileData, 0, fileData.Length);
-                                }
-
-                                break;
-                            case CDirectory dir:
-                                String path = $@"{paths[dir.ParentId]}{dir.Name}\";
-                                archive.CreateEntry(path);
-                                paths[dir.Id] = path;
-                                break;
-                            default:
-                                throw new InvalidCastException($"Unexpected type of '{nameof(storageEntity)}'");
-                        }
+                            break;
+                        case CDirectory dir:
+                            String path = $@"{paths[dir.ParentId]}{dir.Name}\";
+                            archive.CreateEntry(path);
+                            paths[dir.Id] = path;
+                            break;
+                        default:
+                            throw new InvalidCastException($"Unexpected type of '{nameof(storageEntity)}'");
                     }
-                    level++;
                 }
             }
-
-            Byte[] archiveBytes = memory.ToArray();
-            await networkStream.WriteAsync(archiveBytes, 0, archiveBytes.Length);
         }
         
         private async Task StartUploadToServerListener()
@@ -240,35 +234,33 @@ namespace BitContainer.StorageService.Managers
             await using NetworkStream networkStream = client.GetStream();
 
             String fileName = await networkStream.ReadStringAsync();
-            Guid parentId = await networkStream.ReadGuidAsync();
-
+            CStorageEntityId parentId = new CStorageEntityId(await networkStream.ReadGuidAsync());
             String jwt = await networkStream.ReadStringAsync();
-            if (!CheckUserRights(jwt, parentId, ERestrictedAccessType.Write, out var ownerId)) return;
 
-            if (!parentId.IsRootDir()) ownerId = _storageProvider.Shares.GetStorageEntityOwner(parentId);
+            CUserId userId;
+            if (!CheckToken(jwt, out userId)) return;
+            IStorageEntity parent;
+            try
+            {
+                parent =
+                _storageProvider.Validator.EntityExists(parentId).HasReadAccess(userId).ToEntity();
+                _storageProvider.Validator.EntityNotExists(parentId, userId, fileName);
+            }
+            catch (InvalidArgumentException)
+            {
+                return;
+            }
+            catch (AuthenticationException)
+            {
+                return;
+            }
 
             Int64 fileSize = await networkStream.ReadInt64Async();
 
-            CFile newFile = await TakeFileFromClient(networkStream, parentId, ownerId, fileName, fileSize);
+            CSharableEntity newFile = await _storageProvider.Entities.AddFileAsync(networkStream, parent, userId, fileName, fileSize);
 
-            await networkStream.WriteGuidAsync(newFile.Id);
+            await networkStream.WriteGuidAsync(newFile.AccessWrapper.Entity.Id.ToGuid());
         }
 
-        private async Task<CFile> TakeFileFromClient(NetworkStream clientStream, Guid parentId, Guid ownerId, String name, Int64 size)
-        {
-            CFile file = null;
-            await _dbHelper.ExecuteTransactionAsync(async (command) =>
-            {
-                file = _storageProvider.StorageEntities.AddEmptyFile(parentId, ownerId, name, command);
-
-                var query = new GetFileStreamPathQuery(file.Id);
-                CFileStreamInfo fileStreamInfo = query.Execute(command);
-                await using var fileStream = 
-                    new SqlFileStream(fileStreamInfo.Path, fileStreamInfo.TransactionContext, FileAccess.Write);
-                
-                await StreamEx.WriteToStream(fromStream:clientStream, toStream:fileStream, size);
-            });
-            return file;
-        }
     }
 }

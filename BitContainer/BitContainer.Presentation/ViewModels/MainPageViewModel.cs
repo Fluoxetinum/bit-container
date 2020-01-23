@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.Controllers;
+using BitContainer.Presentation.Controllers.Service;
+using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.ViewModels.Controls;
-using BitContainer.Presentation.ViewModels.Jobs;
 
 namespace BitContainer.Presentation.ViewModels
 {
@@ -55,9 +54,9 @@ namespace BitContainer.Presentation.ViewModels
             }
         }
 
-        public MainPageViewModel()
+        public MainPageViewModel(FileSystemController fileSystemController)
         {
-            _fileSystemController = new FileSystemController();
+            _fileSystemController = fileSystemController;
 
             Menu = new MenuControlViewModel();
             DirTree = new DirTreeControlViewModel(_fileSystemController);
@@ -67,9 +66,9 @@ namespace BitContainer.Presentation.ViewModels
             Init();
         }
 
-        private async void Init()
+        private void Init()
         {
-            await Explorer.LoadDirectory(_fileSystemController.Root);
+            Explorer.SelectEntity(_fileSystemController.Root);
         }
 
         public void Dispose()

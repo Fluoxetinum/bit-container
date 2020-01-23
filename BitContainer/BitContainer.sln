@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Presentation", "BitContainer.Presentation\BitContainer.Presentation.csproj", "{639BB197-45F5-4D6E-9166-E33D3F816A90}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.StorageService", "BitContainer.StorageService\BitContainer.StorageService.csproj", "{095DD824-10BF-4AC4-A758-92AB7412284E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Service.Storage", "BitContainer.StorageService\BitContainer.Service.Storage.csproj", "{095DD824-10BF-4AC4-A758-92AB7412284E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.DataAccess", "BitContainer.DataAccess\BitContainer.DataAccess.csproj", "{3C05E161-B865-4526-95FB-2228BAADAB99}"
 EndProject
@@ -13,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.UnitTests", "B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Shared", "BitContainer.Shared\BitContainer.Shared.csproj", "{5FE8EE5D-374B-4AE7-BE36-48CDEC4174EF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.AuthService", "BitContainer.AuthService\BitContainer.AuthService.csproj", "{D19CC465-F2D4-40B7-963F-D3F129269AF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Service.Auth", "BitContainer.AuthService\BitContainer.Service.Auth.csproj", "{D19CC465-F2D4-40B7-963F-D3F129269AF8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.LogService", "BitContainer.LogService\BitContainer.LogService.csproj", "{DAC073ED-01A4-4F1D-B12A-4E87695271C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Service.Log", "BitContainer.LogService\BitContainer.Service.Log.csproj", "{DAC073ED-01A4-4F1D-B12A-4E87695271C3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{BA208C65-DC67-4861-9BF9-2CE9D0F82C25}"
 EndProject
@@ -23,7 +23,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9D788626
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.IntegrationTests", "BitContainer.IntegrationTests\BitContainer.IntegrationTests.csproj", "{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitContainer.Contracts", "BitContainer.Contracts\BitContainer.Contracts.csproj", "{5F7A9714-F95F-4E4A-A250-29D23FB49570}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Contracts", "BitContainer.Contracts\BitContainer.Contracts.csproj", "{5F7A9714-F95F-4E4A-A250-29D23FB49570}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Services.Shared", "BitContainer.Services.Shared\BitContainer.Services.Shared.csproj", "{371F9D19-A7CF-46CB-A9F2-0660FBDE1FAD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BitContainer.Http", "BitContainer.HttpLayer\BitContainer.Http.csproj", "{0A88905F-476F-4002-A072-1AF19BB330F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Network", "Network", "{C8F29F69-41BD-436B-86C3-F06875F0ED9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +73,14 @@ Global
 		{5F7A9714-F95F-4E4A-A250-29D23FB49570}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F7A9714-F95F-4E4A-A250-29D23FB49570}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F7A9714-F95F-4E4A-A250-29D23FB49570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{371F9D19-A7CF-46CB-A9F2-0660FBDE1FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{371F9D19-A7CF-46CB-A9F2-0660FBDE1FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{371F9D19-A7CF-46CB-A9F2-0660FBDE1FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{371F9D19-A7CF-46CB-A9F2-0660FBDE1FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A88905F-476F-4002-A072-1AF19BB330F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A88905F-476F-4002-A072-1AF19BB330F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A88905F-476F-4002-A072-1AF19BB330F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A88905F-476F-4002-A072-1AF19BB330F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +91,9 @@ Global
 		{D19CC465-F2D4-40B7-963F-D3F129269AF8} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
 		{DAC073ED-01A4-4F1D-B12A-4E87695271C3} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
 		{8F3FCC87-C6B7-49A2-9C3B-1EF2D72B1D35} = {9D788626-075F-4C4E-A1CE-2D4560817139}
+		{5F7A9714-F95F-4E4A-A250-29D23FB49570} = {C8F29F69-41BD-436B-86C3-F06875F0ED9B}
+		{371F9D19-A7CF-46CB-A9F2-0660FBDE1FAD} = {BA208C65-DC67-4861-9BF9-2CE9D0F82C25}
+		{0A88905F-476F-4002-A072-1AF19BB330F7} = {C8F29F69-41BD-436B-86C3-F06875F0ED9B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0594528C-647B-40F2-A00D-1DF05C606E3D}

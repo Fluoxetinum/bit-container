@@ -2,29 +2,26 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Controllers.EventParams;
 using BitContainer.Presentation.Controllers.Ui;
-using BitContainer.Presentation.Icons;
-using BitContainer.Presentation.Models;
+using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
 using BitContainer.Presentation.ViewModels.Dialogs;
 using BitContainer.Presentation.ViewModels.Enums;
 using BitContainer.Presentation.ViewModels.Nodes;
-using BitContainer.Presentation.Views;
 using BitContainer.Presentation.Views.Dialogs;
+using BitContainer.Shared.Models;
 using Microsoft.Win32;
 
 namespace BitContainer.Presentation.ViewModels.Controls
 {
     public class ExplorerControlViewModel : NavigatableViewModelBase, IDisposable
     {
-        private FileSystemController _fileSystemController;
+        private readonly FileSystemController _fileSystemController;
+        private readonly ArrangeController _arrangeController;
 
         private PathControlViewModel _path;
         public PathControlViewModel Path
@@ -36,9 +33,11 @@ namespace BitContainer.Presentation.ViewModels.Controls
                 OnPropertyChanged();
             }
         }
+
+        private FileSystemNode CurrentNode => Path.CurrentPath.Last();
         
-        private Dictionary<String, ObservableCollection<CFileSystemNode>> _storageEntities;
-        public Dictionary<String, ObservableCollection<CFileSystemNode>> StorageEntities
+        private Dictionary<String, ObservableCollection<FileSystemNode>> _storageEntities;
+        public Dictionary<String, ObservableCollection<FileSystemNode>> StorageEntities
         {
             get => _storageEntities;
             set
@@ -59,191 +58,87 @@ namespace BitContainer.Presentation.ViewModels.Controls
             }
         }
 
-        private ICommand _infoCommand;
-        public ICommand InfoCommand => 
-            _infoCommand ??= 
-                new RelayCommand<CFileSystemNode>(ShowInfo);
-
-        public void ShowInfo(CFileSystemNode node)
-        {
-
-        }
-
-
-        private ICommand _searchCommand;
-        public ICommand SearchCommand => 
-            _searchCommand ??= new RelayCommand(Search);
-
-        public async void Search(Object data)
-        {
-            String pattern = SearchString;
-            CFileSystemNode node = Path.CurrentPath.Last();
-
-            List<IAccessWrapperUiModel> result = new List<IAccessWrapperUiModel>();
-
-            if (node.AccessWrapper is COwnStorageEntityUiModel)
-                result = await StorageController.SearchOwnerEntities(node.Entity.Id, pattern);
-            else if (node.AccessWrapper is CRestrictedStorageEntityUiModel)
-                result = await StorageController.SearchSharedEntities(node.Entity.Id, pattern);
-            
-            FillPanelWithSearchResults(result);
-        }
-
         public ExplorerControlViewModel(FileSystemController fileSystemController)
         {
             _fileSystemController = fileSystemController;
-            StorageEntities = new Dictionary<String, ObservableCollection<CFileSystemNode>>();
             Path = new PathControlViewModel(fileSystemController);
+
+            _arrangeController = new ArrangeController();
+            StorageEntities = _arrangeController.Arrangement;
 
             SelectedGroupKey = GroupType.None; 
             SelectedSortKey = SortType.Name;
 
             _fileSystemController.FileSystemEvents.DirectoryOpened += 
-                EventsControllerOnDirectoryOpened;
+                OnDirectoryOpened;
             _fileSystemController.FileSystemEvents.StorageEntityCreated += 
-                EventsControllerOnStorageEntityCreated;
+                OnStorageEntityCreated;
             _fileSystemController.FileSystemEvents.StorageEntityDeleted += 
-                EventsControllerOnStorageEntityDeleted;
+                OnStorageEntityDeleted;
         }
 
-        public void EventsControllerOnStorageEntityDeleted(object sender, FsNodeEventArgs e)
+        public void Dispose()
         {
-            switch (SelectedGroupKey)
-            {
-                case GroupType.Created: 
-                    StorageEntities[e.Node.CreatedDate.ToLongDateString()].Remove(e.Node);
-                    break;
-                case GroupType.None:
-                    StorageEntities[String.Empty].Remove(e.Node); 
-                    break;
-                default:
-                    throw new NotSupportedException("Not supported grouping type.");
-            }
+            _fileSystemController.FileSystemEvents.DirectoryOpened -= 
+                OnDirectoryOpened;
+            _fileSystemController.FileSystemEvents.StorageEntityCreated -= 
+                OnStorageEntityCreated;
+            _fileSystemController.FileSystemEvents.StorageEntityDeleted -= 
+                OnStorageEntityDeleted;
         }
 
-        public void EventsControllerOnStorageEntityCreated(object sender, FsNodeEventArgs e)
+        #region EventCallbacks
+
+        public void OnStorageEntityDeleted(object sender, NodeChangedEventArgs e)
         {
-            switch (SelectedGroupKey)
-            {
-                case GroupType.Created: 
-                    StorageEntities[e.Node.CreatedDate.ToLongDateString()].Add(e.Node);
-                    break;
-                case GroupType.None:
-                    StorageEntities[String.Empty].Add(e.Node); 
-                    break;
-                default:
-                    throw new NotSupportedException("Not supported grouping type.");
-            }
+            _arrangeController.RemoveFromArrangement(e.Node);
         }
 
-        public void EventsControllerOnDirectoryOpened(object sender, FsNodeEventArgs e)
+        public void OnStorageEntityCreated(object sender, NodeChangedEventArgs e)
         {
-            var dict = new Dictionary<String, ObservableCollection<CFileSystemNode>>
-            {
-                [String.Empty] = e.Node.Children
-            };
-            StorageEntities = dict;
+            _arrangeController.AddToArrangement(e.Node);
         }
 
-        public void FillPanelWithSearchResults(List<IAccessWrapperUiModel> results)
+        public async void OnDirectoryOpened(object sender, NodeOpenedEventArgs e)
         {
-            ObservableCollection<CFileSystemNode> searchResutlToFill = 
-                new ObservableCollection<CFileSystemNode>();
-
-            foreach (var result in results)
-            {
-                CFileSystemNode node = new CFileSystemNode(null, result);
-                searchResutlToFill.Add(node);
-            }
-
-            var dict = new Dictionary<String, ObservableCollection<CFileSystemNode>>
-            {
-                [String.Empty] = searchResutlToFill
-            };
-
-            StorageEntities = dict;
+            StorageEntities = await _arrangeController.Reset(e.Children, SelectedGroupKey, SelectedSortKey);
         }
 
-        public async Task LoadDirectory(CFileSystemNode dir)
-        {
-            LinkedList<Guid> downList = dir.GetDownList();
+        #endregion
 
-            if (downList == null)
-            {
-                await _fileSystemController.FetchChildren(dir);
-            }
-            else
-            {
-
-                Boolean shared = false;
-
-                if (dir.AccessWrapper is CSearchResultUiModelDirtyAdapter adapter)
-                {
-                    switch (adapter.AccessWrapper)
-                    {
-                        case CRestrictedStorageEntityUiModel restricted:
-                            shared = true;
-                            break;
-                        case COwnStorageEntityUiModel own:
-                            shared = false;
-                            break;
-                        default:
-                            throw new NotSupportedException();
-                    }
-                }
-
-                _fileSystemController.FileSystemEvents.DirectoryOpened -= 
-                    EventsControllerOnDirectoryOpened;
-
-                var node = downList.First;
-
-                while (node != downList.Last)
-                {
-                    await _fileSystemController.FetchChildren(node.Value, shared);
-                    node = node.Next;
-                }
-
-                _fileSystemController.FileSystemEvents.DirectoryOpened += 
-                    EventsControllerOnDirectoryOpened;
-
-                await _fileSystemController.FetchChildren(downList.Last.Value, shared);
-                
-            }
-        }
-        
         private ICommand _selectEntityCommand;
-
         public ICommand SelectEntityCommand =>
-            _selectEntityCommand ??= new RelayCommand<CFileSystemNode>(SelectEntity);
+            _selectEntityCommand ??= new RelayCommand<FileSystemNode>(SelectEntity);
 
-        public async void SelectEntity(CFileSystemNode selectedNode)
+        public async void SelectEntity(FileSystemNode selectedNode)
         {
-            if (selectedNode.IsFile)
-            {
-                // No action by now (Andrey Gurin)
-            }
-            else if (selectedNode.IsDir)
-            {
-                await LoadDirectory(selectedNode);
-            }
+            if (selectedNode.IsDir) await _fileSystemController.OpenDirectory(selectedNode);
+        }
+
+        private ICommand _searchCommand;
+        public ICommand SearchCommand => _searchCommand ??= new RelayCommand(Search);
+
+        public async void Search(Object data)
+        {
+            await _fileSystemController.Search(CurrentNode, SearchString);
         }
 
         private ICommand _downloadEntityCommand;
 
         public ICommand DownloadEntityCommand =>
-            _downloadEntityCommand ??= new RelayCommand<CFileSystemNode>(DownloadEntity);
+            _downloadEntityCommand ??= new RelayCommand<FileSystemNode>(DownloadEntity);
 
-        public async void DownloadEntity(CFileSystemNode selectedNode)
+        public async void DownloadEntity(FileSystemNode selectedNode)
         {
             SaveFileDialog dialog = new SaveFileDialog()
             {
                 CheckPathExists = true,
-                FileName = selectedNode.Entity.Name,
+                FileName = selectedNode.Name,
             };
 
             if (dialog.ShowDialog() != true) return;
 
-            await StorageController.LoadEntity(dialog.FileName, selectedNode.Entity);
+            await _fileSystemController.DownloadEntity(dialog.FileName, selectedNode);
         }
 
         private ICommand _createDirCommand;
@@ -262,7 +157,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
 
             if (dialog.ShowDialog() != true) return;
 
-            await _fileSystemController.CreateDirectory(dialog.InputField,Path.CurrentPath.Last());
+            await _fileSystemController.CreateDirectory(dialog.InputField, CurrentNode);
         }
 
         private ICommand _uploadFileCommand;
@@ -276,7 +171,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
 
             if (filePicker.ShowDialog() != true) return;
 
-            await _fileSystemController.UploadFile(filePicker.FileName, Path.CurrentPath.Last());
+            await _fileSystemController.UploadFile(filePicker.FileName, CurrentNode);
         }
 
         private GroupType _selectedGroupKey;
@@ -297,19 +192,9 @@ namespace BitContainer.Presentation.ViewModels.Controls
         public ICommand GroupByCommand =>
             _groupByCommand ??= new RelayCommand<GroupType>(GroupBy);
 
-        public async void GroupBy(GroupType type)
+        public async void GroupBy(GroupType groupType)
         {
-            switch (type)
-            {
-                case GroupType.Created: 
-                    StorageEntities = await ArrangeController.GroupByCreationDate(StorageEntities);
-                    break;
-                case GroupType.None:
-                    StorageEntities = await ArrangeController.DisableGroupping(StorageEntities);
-                    break;
-                default:
-                    throw new NotSupportedException("Not supported grouping type.");
-            }
+            StorageEntities = await _arrangeController.Arrange(groupType);
         }
 
         private SortType _selectedSortKey;
@@ -330,39 +215,27 @@ namespace BitContainer.Presentation.ViewModels.Controls
         public ICommand SortByCommand =>
             _sortByCommand ??= new RelayCommand<SortType>(SortBy);
 
-        public async void SortBy(SortType type)
+        public async void SortBy(SortType sortType)
         {
-            switch (type)
-            {
-                case SortType.Created: 
-                    StorageEntities = await ArrangeController.SortByCreationTime(StorageEntities);
-                    break;
-                case SortType.Name:
-                    StorageEntities = await ArrangeController.SortByName(StorageEntities);
-                    break;
-                default:
-                    throw new NotSupportedException("Not supported sorting type.");
-            }
+            StorageEntities = await _arrangeController.Arrange(sortType);
         }
 
         private ICommand _deleteCommand;
-
         public ICommand DeleteCommand =>
-            _deleteCommand ??= new RelayCommand<CFileSystemNode>(Delete);
+            _deleteCommand ??= new RelayCommand<FileSystemNode>(Delete);
 
-        public async void Delete(CFileSystemNode node)
+        public async void Delete(FileSystemNode node)
         {
             await _fileSystemController.Delete(node);
         }
 
         private ICommand _renameCommand;
-
         public ICommand RenameCommand =>
-            _renameCommand ??= new RelayCommand<CFileSystemNode>(Rename);
+            _renameCommand ??= new RelayCommand<FileSystemNode>(Rename);
 
-        public async void Rename(CFileSystemNode node)
+        public async void Rename(FileSystemNode node)
         {
-            StringInputDialog dialog = new StringInputDialog("Enter new name", node.Entity.Name)
+            StringInputDialog dialog = new StringInputDialog("Enter new name", node.Name)
             {
                 Title = "Renaming",
                 ResizeMode = ResizeMode.NoResize,
@@ -371,28 +244,17 @@ namespace BitContainer.Presentation.ViewModels.Controls
             };
 
             if (dialog.ShowDialog() != true) return;
-
-            if (dialog.InputField.Equals(node.Entity.Name)) return;
+            if (dialog.InputField.Equals(node.Name)) return;
 
             await _fileSystemController.Rename(node, dialog.InputField);
         }
-
-        private ICommand _editTextFileCommand;
-
-        public ICommand EditTextFileCommand =>
-            _editTextFileCommand ??= new RelayCommand<CFileSystemNode>(Edit);
-
-        public void Edit(CFileSystemNode node)
-        {
-            //TODO: Implement Editing
-        }
-
+        
         private ICommand _shareCommand;
 
         public ICommand ShareCommand =>
-            _shareCommand ??= new RelayCommand<CFileSystemNode>(Share);
+            _shareCommand ??= new RelayCommand<FileSystemNode>(Share);
 
-        public async void Share(CFileSystemNode node)
+        public async void Share(FileSystemNode node)
         {
             ShareDialog dialog  = new ShareDialog()
             {
@@ -405,7 +267,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
             if (dialog.ShowDialog() != true) return;
 
             String user = dialog.UserName;
-            EAccessTypeUiModel access = dialog.Access;
+            EAccessType access = dialog.Access;
 
             await _fileSystemController.UpdateShare(user, access, node);
         }
@@ -413,9 +275,9 @@ namespace BitContainer.Presentation.ViewModels.Controls
         private ICommand _copyCommand;
 
         public ICommand CopyCommand =>
-            _copyCommand ??= new RelayCommand<CFileSystemNode>(Copy);
+            _copyCommand ??= new RelayCommand<FileSystemNode>(Copy);
 
-        public async void Copy(CFileSystemNode node)
+        public async void Copy(FileSystemNode node)
         {
             var vm = new MoveDestinationDialogViewModel();
             MoveDestinationDialog dialog = new MoveDestinationDialog()
@@ -426,25 +288,14 @@ namespace BitContainer.Presentation.ViewModels.Controls
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 DataContext = vm
             };
-            //TODO: Refactor dialogs creation. (Andrey Gurin)
 
             if (dialog.ShowDialog() == true)
             {
-                CFileSystemNode parent = vm.SelectedParent;
+                FileSystemNode parent = vm.SelectedParent;
                 await _fileSystemController.Copy(node, parent);
             }
 
             vm.Dispose();
-        }
-
-        public void Dispose()
-        {
-            _fileSystemController.FileSystemEvents.DirectoryOpened -= 
-                EventsControllerOnDirectoryOpened;
-            _fileSystemController.FileSystemEvents.StorageEntityCreated -= 
-                EventsControllerOnStorageEntityCreated;
-            _fileSystemController.FileSystemEvents.StorageEntityDeleted -= 
-                EventsControllerOnStorageEntityDeleted;
         }
     }
 }

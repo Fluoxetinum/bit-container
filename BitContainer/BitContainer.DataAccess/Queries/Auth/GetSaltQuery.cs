@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Mappers;
 using BitContainer.DataAccess.Queries.Base;
 
@@ -10,9 +11,9 @@ namespace BitContainer.DataAccess.Queries.Auth
         public String UserName { get; set; }
 
         private static readonly String QueryString = 
-            $"SELECT {DbNames.Users.Salt} " +
+            $"SELECT {DbNames.Users.PxSalt} " +
             $"FROM {DbNames.Users} " +
-            $"WHERE {DbNames.Users.Name} = @{nameof(UserName)}";
+            $"WHERE {DbNames.Users.PxName} = @{nameof(UserName)}";
 
         public GetSaltQuery(String userName) : base(new CBytesMapper()) 
         {

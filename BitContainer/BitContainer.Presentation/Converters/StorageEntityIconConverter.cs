@@ -8,11 +8,12 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitContainer.Presentation.Models;
+using BitContainer.Presentation.ViewModels.Nodes;
 using MaterialDesignThemes.Wpf;
 
 namespace BitContainer.Presentation.Converters
 {
-    [ValueConversion(typeof(IAccessWrapperUiModel), typeof(BitmapImage))]
+    [ValueConversion(typeof(FileSystemNode), typeof(BitmapImage))]
     public class StorageEntityIconConverter : IValueConverter
     {
         private static readonly Dictionary<String, Uri> Uries = new Dictionary<string, Uri>()
@@ -38,17 +39,17 @@ namespace BitContainer.Presentation.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var accessModel = value as IAccessWrapperUiModel;
-            if (accessModel == null) return PackIconKind.QuestionMark;
+            var node = value as FileSystemNode;
+            if (node == null) return PackIconKind.QuestionMark;
 
             BitmapImage image = new BitmapImage();
             image.BeginInit();
-            switch (accessModel.Entity)
+            switch (node.Entity)
             {
-                case CDirectoryUiModel dir:
+                case CDirectoryUi dir:
                     image.UriSource = Uries[String.Empty];
                     break;
-                case CFileUiModel file:
+                case CFileUi file:
                     Uries.TryGetValue(file.Extension, out var uri);
                     if (uri == null) uri = UnknownIcon;
                     image.UriSource = uri;

@@ -22,7 +22,7 @@ namespace BitContainer.Presentation
         {
             Exception e = (Exception) args.ExceptionObject;
 
-            LogController.Logger.Warn(e,$"Client crashed with exception");
+            SLogController.Logger.Warn(e,$"Client crashed with exception");
 
             MessageBox.Show(e.ToString());
         }

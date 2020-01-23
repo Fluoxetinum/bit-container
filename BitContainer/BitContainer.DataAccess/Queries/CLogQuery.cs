@@ -15,7 +15,7 @@ namespace BitContainer.DataAccess.Queries
 
         private static readonly String QueryString = 
             $"INSERT INTO {DbNames.Logs} " +
-            $"({DbNames.Logs.LogLevel}, {DbNames.Logs.Message}, {DbNames.Logs.Exception}) " +
+            $"({DbNames.Logs.PxLogLevel}, {DbNames.Logs.PxMessage}, {DbNames.Logs.PxException}) " +
             $"VALUES (@{nameof(Level)}, @{nameof(Message)}, @{nameof(Exception)});";
 
         public CLogQuery(String level, String message, String exception)
@@ -30,7 +30,7 @@ namespace BitContainer.DataAccess.Queries
             command.CommandText = QueryString;
             command.Parameters.AddWithValue(nameof(Message), Message);
             command.Parameters.AddWithValue(nameof(Level), Level);
-            command.Parameters.AddWithValue(nameof(Exception),  Exception.GetDbNullIfEmpty());
+            command.Parameters.AddWithValue(nameof(Exception), Exception);
             return command;
         }
     }

@@ -4,19 +4,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.Auth;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.Shares;
+using BitContainer.Services.Shared;
+using BitContainer.Services.Shared.Middleware;
 using BitContainer.Shared.Auth;
-using BitContainer.Shared.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
-namespace BitContainer.AuthService.Controllers
+namespace BitContainer.Service.Auth.Controllers
 {
     [Route("users")]
     [ApiController]
@@ -37,7 +37,7 @@ namespace BitContainer.AuthService.Controllers
         {
             CUser user = _usersProvider.GetUserWithName(name);
             if (user == null) return BadRequest("No such user");
-            return new CUserContract(user.Id, user.Name);
+            return new CUserContract(user.Id.ToGuid(), user.Name);
         }
 
         [HttpPost]
@@ -102,10 +102,7 @@ namespace BitContainer.AuthService.Controllers
             var encodedJwt = tokenHandler.WriteToken(jwt);
             
             CAuthenticatedUserContract response = 
-                new CAuthenticatedUserContract(
-                    encodedJwt, 
-                    user.Id, 
-                    user.Name);
+                new CAuthenticatedUserContract(encodedJwt, user.Id.ToGuid(), user.Name);
 
             Response.ContentType = "applications/json";
 

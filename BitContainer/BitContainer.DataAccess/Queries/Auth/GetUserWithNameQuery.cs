@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Data.SqlClient;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Mappers;
+using BitContainer.DataAccess.Mappers.Shares;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.Shares;
 using BitContainer.DataAccess.Queries.Base;
 
 namespace BitContainer.DataAccess.Queries.Auth
@@ -11,9 +14,9 @@ namespace BitContainer.DataAccess.Queries.Auth
         public String Name { get; set; }
 
         private static readonly String QueryString = 
-            $"SELECT {DbNames.Users.Id}, {DbNames.Users.Name} " +
+            $"SELECT {DbNames.Users.PxId}, {DbNames.Users.PxName} " +
             $"FROM {DbNames.Users} " +
-            $"WHERE {DbNames.Users.Name} = @{nameof(Name)};";
+            $"WHERE {DbNames.Users.PxName} = @{nameof(Name)};";
 
         public GetUserWithNameQuery(String name) 
             : base(new CUserMapper())

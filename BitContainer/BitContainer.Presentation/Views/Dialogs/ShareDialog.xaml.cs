@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Enums;
+using BitContainer.Shared.Models;
 
 namespace BitContainer.Presentation.Views.Dialogs
 {
@@ -25,12 +26,12 @@ namespace BitContainer.Presentation.Views.Dialogs
         }
 
         public String UserName { get; set; }
-        public EAccessTypeUiModel Access { get; set; }
+        public EAccessType Access { get; set; }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             UserName = UserNameBox.Text;
-            Access = (EAccessTypeUiModel)AccessTypeBox.SelectedValue;
+            Access = (EAccessType)AccessTypeBox.SelectedValue;
 
             DialogResult = UserName != String.Empty;
 

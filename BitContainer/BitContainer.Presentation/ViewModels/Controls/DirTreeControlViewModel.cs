@@ -4,10 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Controllers.EventParams;
-using BitContainer.Presentation.Icons;
-using BitContainer.Presentation.Models;
+using BitContainer.Presentation.Controllers.Ui;
+using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Commands.Generic;
 using BitContainer.Presentation.ViewModels.Nodes;
@@ -18,18 +16,20 @@ namespace BitContainer.Presentation.ViewModels.Controls
     {
         #region ConnectViewAndViewModelEvents
 
-        public event EventHandler<FsNodeEventArgs> DirectoryOpenedInTreeViewModel;
+        public event EventHandler<NodeOpenedEventArgs> DirectoryOpenedInTreeViewModel;
 
-        public void NotifyDirTreeViewDirectoryOpened(CFileSystemNode directory)
+        public void NotifyDirTreeViewDirectoryOpened(FileSystemNode directory, List<FileSystemNode> children)
         {
-            DirectoryOpenedInTreeViewModel?.Invoke(null, new FsNodeEventArgs(directory));
+            DirectoryOpenedInTreeViewModel?.Invoke(null, new NodeOpenedEventArgs(directory, children));
         }
+
+        public Boolean MuteViewEvents { get; private set; }
 
         #endregion
 
-        private readonly FileSystemController _fileSystemController;
+        public FileSystemController FileSystemController { get; }
 
-        private readonly DirTreeNode _treeRoot;
+        private readonly DirTreeNode _ownTreeRoot;
 
         private ObservableCollection<DirTreeNode> _tree;
         public ObservableCollection<DirTreeNode> Tree
@@ -40,12 +40,12 @@ namespace BitContainer.Presentation.ViewModels.Controls
                 _tree = value;
                 OnPropertyChanged();
             }
-        } 
+        }
 
         private readonly DirTreeNode _sharedTreeRoot;
 
         private ObservableCollection<DirTreeNode> _sharedTree;
-        public ObservableCollection<DirTreeNode> SharedTree 
+        public ObservableCollection<DirTreeNode> SharedTree
         {
             get => _sharedTree;
             set
@@ -53,115 +53,98 @@ namespace BitContainer.Presentation.ViewModels.Controls
                 _sharedTree = value;
                 OnPropertyChanged();
             }
-        } 
+        }
+
+        private DirTreeNode GetTreeRoot(FileSystemNode node) =>
+            node.IsSharedWithUser ? _sharedTreeRoot : _ownTreeRoot;
 
         public DirTreeControlViewModel(FileSystemController filesSystemController)
         {
-            _treeRoot = DirTreeNode.Create(filesSystemController.Root);
-            _sharedTreeRoot = DirTreeNode.Create(filesSystemController.SharedRoot);
-            _treeRoot.Children = DirTreeNode.ChildrenNull;
-            _sharedTreeRoot.Children = DirTreeNode.ChildrenNull;
-            Tree = new ObservableCollection<DirTreeNode>()
-            {
-                _treeRoot
-            };
-            SharedTree = new ObservableCollection<DirTreeNode>()
-            {
-                _sharedTreeRoot
-            };
-            _fileSystemController = filesSystemController;
+            _ownTreeRoot = new DirTreeNode(filesSystemController.Root);
+            _sharedTreeRoot = new DirTreeNode(filesSystemController.SharedRoot);
 
-            _fileSystemController.FileSystemEvents.DirectoryOpened += 
-                EventsControllerOnDirectoryOpened;
-            _fileSystemController.FileSystemEvents.StorageEntityCreated += 
-                EventsControllerOnStorageEntityCreated;
-            _fileSystemController.FileSystemEvents.StorageEntityDeleted += 
-                EventsControllerOnStorageEntityDeleted;
+            Tree = new ObservableCollection<DirTreeNode>() { _ownTreeRoot };
+            SharedTree = new ObservableCollection<DirTreeNode>() { _sharedTreeRoot };
+
+            FileSystemController = filesSystemController;
+
+            FileSystemController.FileSystemEvents.DirectoryOpened += DirectoryOpened;
+            FileSystemController.FileSystemEvents.SearchParentOpened += DirectoryOpened;
+            FileSystemController.FileSystemEvents.StorageEntityCreated += EntityCreated;
+            FileSystemController.FileSystemEvents.StorageEntityDeleted += EntityDeleted;
         }
 
-        public async void EventsControllerOnStorageEntityDeleted(object sender, FsNodeEventArgs e)
+        public void Dispose()
+        {
+            FileSystemController.FileSystemEvents.DirectoryOpened -= DirectoryOpened;
+            FileSystemController.FileSystemEvents.SearchParentOpened -= DirectoryOpened;
+            FileSystemController.FileSystemEvents.StorageEntityCreated -= EntityCreated;
+            FileSystemController.FileSystemEvents.StorageEntityDeleted -= EntityDeleted;
+        }
+
+        private async Task<DirTreeNode> GetCorrespondingDirNode(FileSystemNode fsNode)
+        {
+            LinkedList<FileSystemNode> pathFromRoot = await FileSystemController.GetPathFromRoot(fsNode);
+
+            DirTreeNode treeRoot = GetTreeRoot(fsNode);
+
+            List<DirTreeNode> tier = new List<DirTreeNode>() { treeRoot };
+
+            DirTreeNode founded = null;
+            foreach (var pathEntry in pathFromRoot)
+            {
+                founded = tier.SingleOrDefault(dirNode => dirNode.FsNode.Equals(pathEntry));
+                if (founded == null) throw new ApplicationException("Dir tree is not mapped to virtual file system.");
+                tier.Clear();
+                tier = new List<DirTreeNode>(founded.Children);
+            }
+            if (founded == null) 
+                throw new ApplicationException("Dir tree is not mapped to virtual file system.");
+
+            return founded;
+        }
+
+        #region EventCallbacks
+
+        public async void EntityDeleted(object sender, NodeChangedEventArgs e)
         {
             if (e.Node.IsFile) return;
-            CFileSystemNode fsNode = e.Node;
-            DirTreeNode parentNode = await FindDirTreeNode(fsNode.Parent);
-            DirTreeNode treeNode = 
-                parentNode.Children.SingleOrDefault(n => n.FsNode.EntityId == fsNode.EntityId);
+            FileSystemNode fsNode = e.Node;
+            DirTreeNode parentNode = await GetCorrespondingDirNode(fsNode.Parent);
+            DirTreeNode treeNode = parentNode.Children.SingleOrDefault(n => n.FsNode.Equals(fsNode));
             parentNode.Children.Remove(treeNode);
         }
 
-        public async void EventsControllerOnStorageEntityCreated(object sender, FsNodeEventArgs e)
+        public async void EntityCreated(object sender, NodeChangedEventArgs e)
         {
             if (e.Node.IsFile) return;
-            CFileSystemNode fsNode = e.Node;
-            DirTreeNode parentNode = await FindDirTreeNode(fsNode.Parent);
-            parentNode.Children.Add(DirTreeNode.Create(fsNode));
+            FileSystemNode fsNode = e.Node;
+            DirTreeNode parentNode = await GetCorrespondingDirNode(fsNode.Parent);
+            parentNode.Children.Add(new DirTreeNode(fsNode));
         }
 
-        public Boolean OpenDirEvent { get; set; } = false;
-
-        public async void EventsControllerOnDirectoryOpened(object sender, FsNodeEventArgs e)
+        public async void DirectoryOpened(object sender, NodeOpenedEventArgs e)
         {
-            OpenDirEvent = true;
-            CFileSystemNode fsNode = e.Node;
+            MuteViewEvents = true;
 
-            DirTreeNode node = await FindDirTreeNode(fsNode);
+            FileSystemNode fsNode = e.Node;
+            List<FileSystemNode> children = e.Children;
 
-            //TODO: Cache (Andrey Gurin)
-            //if (node.Children != DirTreeNode.ChildrenNull)
-            //{
-            //    if (fsNode.Children.Count > 0)
-            //        NotifyDirTreeViewDirectoryOpened(fsNode);
-            //    return;
-            //};
+            DirTreeNode node = await GetCorrespondingDirNode(fsNode);
 
             node.Children = new ObservableCollection<DirTreeNode>();
-            foreach (var child in fsNode.Children)
+            foreach (var child in children)
             {
                 if (child.IsFile) continue;
-                node.Children.Add(DirTreeNode.Create(child));
+                node.Children.Add(new DirTreeNode(child));
             }
 
+            MuteViewEvents = false;
 
-            OpenDirEvent = false;
-            //if (fsNode.Children.Count > 0)
-                NotifyDirTreeViewDirectoryOpened(fsNode);
-
-
+            NotifyDirTreeViewDirectoryOpened(fsNode, children);
         }
 
-        private async Task<DirTreeNode> FindDirTreeNode(CFileSystemNode fsNode)
-        {
-            LinkedList<CFileSystemNode> path = await _fileSystemController.ComputePath(fsNode);
-
-            DirTreeNode node = null;
-
-            switch (fsNode.AccessWrapper)
-            {
-                case COwnStorageEntityUiModel own:
-                    node = _treeRoot;
-                    break;
-                case CRestrictedStorageEntityUiModel restricted:
-                    node = _sharedTreeRoot;
-                    break;
-                default:
-                    throw new NotSupportedException("Not supported access.");
-            }
-            
-            LinkedListNode<CFileSystemNode> pathEntry = path.First;
-
-            while (node.FsNode.EntityId != fsNode.EntityId)
-            {
-                pathEntry = pathEntry.Next;
-                foreach (var child in node.Children)
-                {
-                    if (child.FsNode.EntityId != pathEntry.Value.EntityId) continue;
-                    node = child;
-                    break;
-                }
-            }
-
-            return node;
-        }
+        #endregion
 
         private ICommand _directoryExpandedCommand;
 
@@ -170,14 +153,7 @@ namespace BitContainer.Presentation.ViewModels.Controls
 
         public async void DirectoryExpanded(DirTreeNode node)
         {
-            await _fileSystemController.FetchChildren(node.FsNode);
-        }
-
-        public void Dispose()
-        {
-            _fileSystemController.FileSystemEvents.DirectoryOpened -= EventsControllerOnDirectoryOpened;
-            _fileSystemController.FileSystemEvents.StorageEntityCreated -= EventsControllerOnStorageEntityCreated;
-            _fileSystemController.FileSystemEvents.StorageEntityDeleted -= EventsControllerOnStorageEntityDeleted;
+            await FileSystemController.OpenDirectory(node.FsNode);
         }
     }
 }

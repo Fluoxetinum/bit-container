@@ -1,30 +1,25 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Scripts;
-using BitContainer.Shared.Auth;
-using BitContainer.Shared.Http;
-using BitContainer.Shared.Middleware;
+using BitContainer.Http;
+using BitContainer.Http.Proxies;
+using BitContainer.Service.Storage.Managers;
+using BitContainer.Services.Shared;
+using BitContainer.Services.Shared.Middleware;
 using BitContainer.StorageService.Managers;
 using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 
-namespace BitContainer.StorageService
+namespace BitContainer.Service.Storage
 {
     public class Startup
     {
@@ -53,7 +48,7 @@ namespace BitContainer.StorageService
 
             T4StorageDbInitScript script = new T4StorageDbInitScript(DbNames.StorageDbName);
             services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
-                new CSqlDbHelper(sqlServerConnectionString, script));
+                new CSqlDbHelper(sqlServerConnectionString, script, serviceProvider.GetService<ILogger<CSqlDbHelper>>()));
             services.AddSingleton<IStorageProvider, CStorageProvider>();
             services.AddSingleton<IStatsProvider, CStatsProvider>();
             services.AddSingleton<ILoadsManager, CLoadsManager>();
@@ -61,11 +56,15 @@ namespace BitContainer.StorageService
             
             String authServiceUrl = 
                 Configuration.GetConnectionString("AuthServiceUrl");
-            AuthServiceProxy.SetServiceUrl(authServiceUrl);
 
+            services.AddSingleton<IAuthServiceProxy, ÑAuthServiceProxy>((serviceProvider) =>
+                new ÑAuthServiceProxy(new CHttpHelper(), authServiceUrl));
+            
             String logServiceUrl =
                 Configuration.GetConnectionString("LogServiceUrl");
-            CLogServiceProxy.SetServiceUrl(logServiceUrl);
+           
+            services.AddSingleton<ILogServiceProxy, CLogServiceProxy>((serviceProvider) 
+                => new CLogServiceProxy(new CHttpHelper(), logServiceUrl));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

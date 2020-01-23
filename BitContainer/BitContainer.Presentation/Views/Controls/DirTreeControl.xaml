@@ -9,6 +9,7 @@
              xmlns:conv="clr-namespace:BitContainer.Presentation.Converters"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:controls="clr-namespace:BitContainer.Presentation.ViewModels.Controls"
+             xmlns:helpers="clr-namespace:BitContainer.Presentation.Helpers"
              Background="{DynamicResource MaterialDesignBackground}"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=controls:DirTreeControlViewModel}"
@@ -79,7 +80,7 @@
                                  <TextBlock Tag="{Binding}" 
                                             FontWeight="DemiBold"
                                             Foreground="{DynamicResource PrimaryHueDarkBrush}"
-                                            Text="{Binding FsNode.Entity.Name}">
+                                            Text="{Binding FsNode.Name}">
                                  </TextBlock>
                              </StackPanel>
                          </HierarchicalDataTemplate>
@@ -104,7 +105,7 @@
                                 <TextBlock Tag="{Binding}" 
                                            FontWeight="DemiBold"
                                            Foreground="{DynamicResource PrimaryHueDarkBrush}"
-                                           Text="{Binding FsNode.Entity.Name}">
+                                           Text="{Binding FsNode.Name}">
                                 </TextBlock>
                             </StackPanel>
                         </HierarchicalDataTemplate>

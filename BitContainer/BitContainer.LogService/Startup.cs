@@ -1,23 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BitContainer.DataAccess;
 using BitContainer.DataAccess.DataProviders;
 using BitContainer.DataAccess.DataProviders.Interfaces;
-using BitContainer.DataAccess.Queries.Base;
+using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Scripts;
-using BitContainer.Shared.Middleware;
+using BitContainer.Services.Shared.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
-namespace BitContainer.LogService
+namespace BitContainer.Service.Log
 {
     public class Startup
     {
@@ -38,7 +32,7 @@ namespace BitContainer.LogService
 
             T4LogsDbInitScript script = new T4LogsDbInitScript(DbNames.LogsDbName);
             services.AddSingleton<ISqlDbHelper, CSqlDbHelper>((serviceProvider) =>
-                new CSqlDbHelper(sqlServerConnectionString, script));
+                new CSqlDbHelper(sqlServerConnectionString, script, serviceProvider.GetService<ILogger<CSqlDbHelper>>()));
 
             services.AddSingleton<ILogsProvider, CLogsProvider>();
         }

@@ -7,20 +7,18 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using BitContainer.Presentation.Models;
+using BitContainer.Presentation.ViewModels.Nodes;
 
 namespace BitContainer.Presentation.Converters
 {
-    [ValueConversion(typeof(IAccessWrapperUiModel), typeof(Visibility))]
+    [ValueConversion(typeof(FileSystemNode), typeof(Visibility))]
     public class OnlyForDirectoryVisibleConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is IAccessWrapperUiModel accessModel)
-            {
-                if (accessModel.Entity is CDirectoryUiModel)
-                    return Visibility.Visible;
-            }
-
+            if (value is FileSystemNode node && node.IsDir)
+                return Visibility.Visible;
+            
             return Visibility.Collapsed;
         }
 

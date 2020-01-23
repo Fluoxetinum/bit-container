@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:BitContainer.Presentation.Views.Dialogs"
         xmlns:enums="clr-namespace:BitContainer.Presentation.ViewModels.Enums"
         xmlns:mdesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:models="clr-namespace:BitContainer.Presentation.Models"
+        xmlns:models="clr-namespace:BitContainer.Shared.Models;assembly=BitContainer.Shared"
         mc:Ignorable="d"
         Background="{DynamicResource PrimaryHueLightBrush}"
         Height="150" Width="280"
@@ -30,13 +30,13 @@
                           SelectedValuePath="Tag"
                           Padding="5"
                           Background="{DynamicResource MaterialDesignBackground}">
-                    <ComboBoxItem Tag="{x:Static models:EAccessTypeUiModel.Read}">
+                    <ComboBoxItem Tag="{x:Static models:EAccessType.Read}">
                         <StackPanel Orientation="Horizontal">
                             <mdesign:PackIcon Kind="Eye"></mdesign:PackIcon>
                             <TextBlock FontWeight="Bold" Margin="5,0,0,0">Read</TextBlock>
                         </StackPanel>
                     </ComboBoxItem>
-                    <ComboBoxItem Tag="{x:Static models:EAccessTypeUiModel.Write}">
+                    <ComboBoxItem Tag="{x:Static models:EAccessType.Write}">
                     <StackPanel Orientation="Horizontal">
                         <mdesign:PackIcon Kind="Pencil"></mdesign:PackIcon>
                         <TextBlock FontWeight="Bold" Margin="5,0,0,0">Write</TextBlock>

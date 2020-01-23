@@ -4,41 +4,48 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
+using BitContainer.Contracts.V1.ActionContracts;
 using BitContainer.Contracts.V1.Auth;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
 using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Helpers;
 using BitContainer.DataAccess.Models;
+using BitContainer.DataAccess.Models.Shares;
 using BitContainer.DataAccess.Models.StorageEntities;
-using BitContainer.Shared.Auth;
-using BitContainer.Shared.Http;
-using BitContainer.Shared.Http.Exceptions;
-using BitContainer.StorageService.Helpers;
-using BitContainer.StorageService.Managers;
+using BitContainer.Http.Exceptions;
+using BitContainer.Http.Proxies;
+using BitContainer.Service.Storage.Helpers;
+using BitContainer.Services.Shared;
+using BitContainer.Shared.Models;
 using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Sdk.Sfc;
 
-namespace BitContainer.StorageService.Controllers
+namespace BitContainer.Service.Storage.Controllers
 {
     [Route("storage")]
     [ApiController]
     public class StorageController : ControllerBase
     {
+        private readonly IAuthServiceProxy _authServiceProxy;
         private readonly ILoadsManager _loadsManager;
         private readonly IStorageProvider _storage;
         private readonly ILogger<StorageController> _logger;
 
-        public Guid UserId => new Guid(User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value);
+        public CUserId UserId => 
+            new CUserId(new Guid(User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value));
 
         public StorageController(
+            IAuthServiceProxy authServiceProxy,
             ILoadsManager loadsManager,
             IStorageProvider storageProvider, 
             ILogger<StorageController> logger)
         {
+            _authServiceProxy = authServiceProxy;
             _loadsManager = loadsManager;
             _storage = storageProvider;
             _logger = logger;
@@ -46,200 +53,52 @@ namespace BitContainer.StorageService.Controllers
         
         [Authorize]
         [HttpGet("entities/{parentId}")]
-        public ActionResult<List<CAccessWrapperContract>> GetStorageEntities(Guid parentId)
+        public ActionResult<List<CSharableEntityContract>> GetEntities(Guid parentId)
         {
-            List<COwnStorageEntity> entities = _storage.StorageEntities.GetOwnerChildren(parentId, UserId);
-            return ContractsConverter.ToOwnStorageEntityContracts(entities);
+            CStorageEntityId entityId = new CStorageEntityId(parentId);
+            CUserId userId = UserId;
+
+            List<CSharableEntity> entities = _storage.Entities.GetOwnerChildren(entityId, userId);
+
+            return ContractsConverter.Convert(entities);
         }
 
         [Authorize]
         [HttpGet("shared_entities/{parentId}")]
-        public ActionResult<List<CAccessWrapperContract>> GetSharedStorageEntities(Guid parentId)
+        public ActionResult<List<CSharableEntityContract>> GetSharedEntities(Guid parentId)
         {
-            List<CRestrictedStorageEntity> sharedEntities = _storage.StorageEntities.GetSharedChildren(parentId, UserId);
-            return ContractsConverter.ToRestrictedStorageEntityContracts(sharedEntities);
+            CStorageEntityId entityId = new CStorageEntityId(parentId);
+            CUserId userId = UserId;
+
+            List<CSharableEntity> sharedEntities = _storage.Entities.GetSharedChildren(entityId, userId);
+
+            return ContractsConverter.Convert(sharedEntities);
         }
 
         [Authorize]
         [HttpGet("entities/search/{parentId}/{pattern}")]
-        public ActionResult<List<CSearchResultContract>> SearchStorageEntities(Guid parentId, String pattern)
+        public ActionResult<List<CSearchResultContract>> SearchEntities(Guid parentId, String pattern)
         {
-            List<CSearchResult> entities = _storage.SearchOwnEntitiesByName(pattern, parentId, UserId);
-            return ContractsConverter.ToSearchResultContractList(entities);
+            CStorageEntityId entityId = new CStorageEntityId(parentId);
+            CUserId userId = UserId;
+
+            List<CSearchResult> entities = _storage.Entities.SearchOwnByName(pattern, entityId, userId);
+
+            return ContractsConverter.Convert(entities);
         }
 
         [Authorize]
         [HttpGet("shared_entities/search/{parentId}/{pattern}")]
-        public ActionResult<List<CSearchResultContract>> SearchSharedStorageEntities(Guid parentId,
-            String pattern)
+        public ActionResult<List<CSearchResultContract>> SearchSharedEntities(Guid parentId, String pattern)
         {
-            List<CSearchResult> entities = _storage.SearchRestrictedEntitiesByName(pattern, parentId, UserId);
-            return ContractsConverter.ToSearchResultContractList(entities);
+            CStorageEntityId entityId = new CStorageEntityId(parentId);
+            CUserId userId = UserId;
+
+            List<CSearchResult> entities = _storage.Entities.SearchSharedByName(pattern, entityId, userId);
+
+            return ContractsConverter.Convert(entities);
         }
         
-        [Authorize]
-        [HttpGet("file/{id}")]
-        public ActionResult<CAccessWrapperContract> GetFile(Guid id)
-        {
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(id, UserId);
-            if (restrictedAccess.NoReadAccess()) return Unauthorized();
-
-            CFile file = _storage.StorageEntities.GetFile(id);
-            if (file == null) return BadRequest("No such file");
-
-            if (file.OwnerId == UserId)
-            {
-                Boolean isShared = _storage.Shares.IsStorageEntityHasShare(file.Id);
-                return ContractsConverter.ToOwnStorageEntityContract(file, isShared);
-            }
-
-            return ContractsConverter.ToRestrictedStorageEntityContract(file, restrictedAccess);
-        }
-
-        [Authorize]
-        [HttpPut("share")]
-        public async Task<ActionResult> UpdateShare(CNewShareContract newShare)
-        {
-            CUserContract user = null;
-            try
-            {
-                user = await AuthServiceProxy.GetUserWithName(newShare.UserName);
-            }
-            catch (NoSuchUserException e)
-            {
-                return BadRequest(e.Message);
-            }
-            
-            ERestrictedAccessType restrictedAccessToShare = newShare.AccessTypeContract.ToAccessType();
-
-            Guid fileOwnerId = _storage.Shares.GetStorageEntityOwner(newShare.EntityId);
-            if (fileOwnerId != UserId) return Unauthorized();
-            
-            CShare fShare = _storage.Shares.GetStorageEntityShare(user.Id, newShare.EntityId);
-            
-            if (fShare != null)
-                _storage.Shares.UpdateStorageEntityShare(user.Id, restrictedAccessToShare, newShare.EntityId);
-            else
-                _storage.Shares.AddStorageEntityShare(user.Id, restrictedAccessToShare, newShare.EntityId);
-                    
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPost("dir")]
-        public ActionResult<CAccessWrapperContract> AddDirectory(CStorageEntityContract dirInfo)
-        {
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirInfo.ParentId, UserId);
-            if (restrictedAccess.NoWriteAccess()) return Unauthorized();
-
-            CDirectory dir = _storage.StorageEntities.GetDir(dirInfo.ParentId, userId:UserId, dirInfo.Name);
-            if (dir != null) return BadRequest("Such dir already exists");
-
-            CDirectory createdDir = _storage.StorageEntities.AddDir(dirInfo.ParentId, UserId, dirInfo.Name);
-
-            _logger.LogInformation($"User{UserId} added dir #{dirInfo.Id} (Owner {createdDir.OwnerId}).");
-
-            if (createdDir.OwnerId == UserId)
-            {
-                Boolean isShared = _storage.Shares.IsStorageEntityHasShare(createdDir.Id);
-                return ContractsConverter.ToOwnStorageEntityContract(createdDir, isShared);
-            }
-
-            return ContractsConverter.ToRestrictedStorageEntityContract(createdDir, restrictedAccess);
-        }
-
-        [Authorize]
-        [HttpDelete("dir")]
-        public ActionResult DeleteDirectory(CStorageEntityContract dirContract)
-        {
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirContract.Id, UserId);
-            if (restrictedAccess.NoWriteAccess()) return Unauthorized();
-            
-            _storage.StorageEntities.DeleteDir(dirContract.Id);
-
-            _logger.LogInformation($"User '{UserId}' deleted dir #{dirContract.Id}.");
-
-            return Ok();
-        }
-        
-        [Authorize]
-        [HttpDelete("file")]
-        public ActionResult DeleteFile(CStorageEntityContract fileContract)
-        {
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(fileContract.Id, UserId);
-            if (restrictedAccess.NoWriteAccess()) return Unauthorized();
-            
-            _storage.StorageEntities.DeleteFile(fileContract.Id);
-
-            _logger.LogInformation($"User '{UserId}' deleted file #{fileContract.Id}.");
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPut("dir")]
-        public ActionResult RenameDirectory(CStorageEntityContract dirContract)
-        {
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirContract.Id, UserId);
-            if (restrictedAccess.NoWriteAccess()) return Unauthorized();
-
-            _storage.StorageEntities.RenameEntity(dirContract.Id, dirContract.Name);
-
-            _logger.LogInformation($"User '{UserId}' renamed dir #{dirContract.Id} to '{dirContract.Name}'.");
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPut("file")]
-        public ActionResult RenameFile(CStorageEntityContract fileContract)
-        {
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(fileContract.Id, UserId);
-            if (restrictedAccess.NoWriteAccess()) return Unauthorized();
-
-            _storage.StorageEntities.RenameEntity(fileContract.Id, fileContract.Name);
-
-            _logger.LogInformation($"User '{UserId}' renamed file #{fileContract.Id} to '{fileContract.Name}'.");
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPost("file/copy")]
-        public ActionResult CopyFile(CStorageEntityContract fileContract)
-        {
-            Guid fileId = fileContract.Id;
-            Guid newParentId = fileContract.ParentId;
-            
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(fileId, UserId);
-            if (restrictedAccess.NoReadAccess()) return Unauthorized();
-
-            ERestrictedAccessType destinationAccess = _storage.Shares.CheckStorageEntityAccess(newParentId, UserId);
-            if (destinationAccess.NoWriteAccess()) return Unauthorized();
-
-            _storage.StorageEntities.CopyFile(fileId,UserId, newParentId);
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPost("dir/copy")]
-        public ActionResult CopyDir(CStorageEntityContract dirContract)
-        {
-            Guid dirId = dirContract.Id;
-            Guid newParentId = dirContract.ParentId;
-            
-            ERestrictedAccessType restrictedAccess = _storage.Shares.CheckStorageEntityAccess(dirId, UserId);
-            if (restrictedAccess.NoReadAccess()) return Unauthorized();
-
-            ERestrictedAccessType destinationAccess = _storage.Shares.CheckStorageEntityAccess(newParentId, UserId);
-            if (destinationAccess.NoWriteAccess()) return Unauthorized();
-
-            _storage.StorageEntities.CopyDir(dirId, UserId, newParentId);
-
-            return Ok();
-        }
-
         [Authorize]
         [HttpGet("upload_endpoint")]
         public ActionResult<CTransmissionEndPointContract> GetEndPointToUploadFile() 
@@ -252,6 +111,178 @@ namespace BitContainer.StorageService.Controllers
         public  ActionResult<CTransmissionEndPointContract> GetEndPointToLoadFile()
         {
             return _loadsManager.EndPointToDownloadFromServer;
+        }
+
+        [Authorize]
+        [HttpGet("file/{id}")]
+        public ActionResult<CSharableEntityContract> GetFile(Guid id)
+        {
+            CStorageEntityId fileId = new CStorageEntityId(id);
+            CUserId userId = UserId;
+            CSharableEntity file;
+            try
+            {
+                file = _storage.Validator.EntityExists(fileId).HasReadAccess(userId)
+                        .ToSharableEntity(userId);
+            }
+            catch (InvalidArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return Unauthorized(e.Message);
+            }
+            
+            return ContractsConverter.Convert(file);
+        }
+
+        [Authorize]
+        [HttpPut("share")]
+        public async Task<ActionResult> UpdateShare(CNewShareContract newShare)
+        {
+            CStorageEntityId entityId = new CStorageEntityId(newShare.EntityId);
+            CUserId userId = UserId;
+            try
+            {
+                _storage.Validator.EntityExists(entityId).IsOwner(userId);
+            }
+            catch (InvalidArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return Unauthorized(e.Message);
+            }
+
+            CUserId userToShareId;
+            try
+            {
+                CUserContract userToShare = await _authServiceProxy.GetUserWithName(newShare.UserName);
+                userToShareId = new CUserId(userToShare.Id);
+            }
+            catch (NoSuchUserException e)
+            {
+                return BadRequest(e.Message);
+            }
+            
+            _storage.Shares.SaveShare(entityId, userToShareId, newShare.AccessType);
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("dir")]
+        public ActionResult<CSharableEntityContract> CreateDirectory(CNewDirContract dirInfo)
+        {
+            CStorageEntityId parentEntityId = new CStorageEntityId(dirInfo.ParentId);
+            CUserId userId = UserId;
+            String dirName = dirInfo.Name;
+            IStorageEntity parent;
+            try
+            {
+                parent = _storage.Validator.EntityExists(parentEntityId).HasWriteAccess(userId).ToEntity();
+                _storage.Validator.EntityNotExists(parentEntityId, userId, dirName);
+            }
+            catch (InvalidArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return Unauthorized(e.Message);
+            }
+
+            CSharableEntity createdDir = _storage.Entities.AddDir(parent, userId, dirName);
+
+            _logger.LogInformation($"User{userId} added dir #{createdDir.AccessWrapper.Entity.Id} (Owner {parent}).");
+
+            return ContractsConverter.Convert(createdDir);
+        }
+
+        [Authorize]
+        [HttpDelete("entity")]
+        public ActionResult DeleteEntity([FromBody] Guid id)
+        {
+            CStorageEntityId entityId = new CStorageEntityId(id);
+            CUserId userId = UserId;
+            try
+            {
+                _storage.Validator.EntityExists(entityId).IsNotRoot().IsOwner(userId);
+            }
+            catch (InvalidArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return Unauthorized(e.Message);
+            }
+            
+            _storage.Entities.DeleteEntity(entityId);
+
+            _logger.LogInformation($"User '{userId}' deleted entity #{entityId}.");
+
+            return Ok();
+        }
+        
+
+        [Authorize]
+        [HttpPut("entity")]
+        public ActionResult RenameEntity(CRenameEntityContract renameContract)
+        {
+            CStorageEntityId entityId = new CStorageEntityId(renameContract.EntityId);
+            CUserId userId = UserId;
+            String newName = renameContract.NewName;
+            try
+            {
+                _storage.Validator.EntityExists(entityId).IsNotRoot().IsOwner(userId);
+            }
+            catch (InvalidArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return Unauthorized(e.Message);
+            }
+
+            _storage.Entities.RenameEntity(entityId, newName);
+
+            _logger.LogInformation($"User '{UserId}' renamed entity #{entityId} to '{newName}'.");
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("copy")]
+        public ActionResult CopyEntity(CCopyEntityContract copyContract)
+        {
+            CStorageEntityId entityId = new CStorageEntityId(copyContract.EntityId);
+            CStorageEntityId newParentId = new CStorageEntityId(copyContract.NewParentId);
+            CUserId userId = UserId;
+            IStorageEntity parent;
+            try
+            {
+                CSharableEntity entity = _storage.Validator.EntityExists(entityId).HasReadAccess(userId)
+                    .ToSharableEntity(userId);
+                parent = _storage.Validator.EntityExists(newParentId).IsDir().HasWriteAccess(userId)
+                    .ToEntity();
+                _storage.Validator.EntityNotExists(newParentId, userId, entity.AccessWrapper.Entity.Name);
+            }
+            catch (InvalidArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return Unauthorized(e.Message);
+            }
+
+            _storage.Entities.CopyEntity(entityId, userId, parent);
+
+            return Ok();
         }
     }
 }
