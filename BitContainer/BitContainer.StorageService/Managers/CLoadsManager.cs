@@ -16,10 +16,11 @@ using BitContainer.DataAccess.DataProviders.Interfaces;
 using BitContainer.DataAccess.Models.Shares;
 using BitContainer.DataAccess.Models.StorageEntities;
 using BitContainer.DataAccess.Queries.StorageEntites;
+using BitContainer.Service.Storage.Managers.Interfaces;
 using BitContainer.Services.Shared;
 using BitContainer.Shared.Models;
 using BitContainer.Shared.StreamHelpers;
-using BitContainer.StorageService.Managers.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.SqlServer.Management.Common;
@@ -29,6 +30,7 @@ namespace BitContainer.Service.Storage.Managers
     public class CLoadsManager : ILoadsManager
     {
         private readonly ISqlDbHelper _dbHelper;
+        private readonly ISignalsManager _signalsManager;
         private readonly ILogger<CLoadsManager> _logger;
         private readonly IStorageProvider _storageProvider;
 
@@ -43,11 +45,15 @@ namespace BitContainer.Service.Storage.Managers
         public CTransmissionEndPointContract EndPointToUploadToServer { get; private set; }
         public CTransmissionEndPointContract EndPointToDownloadFromServer { get; private set; }
 
-        public CLoadsManager(ISqlDbHelper dbHelper, IStorageProvider storageProvider, ILogger<CLoadsManager> logger)
+        public CLoadsManager(ISqlDbHelper dbHelper, 
+            IStorageProvider storageProvider, 
+            ILogger<CLoadsManager> logger, 
+            ISignalsManager signalsManager)
         {
             _dbHelper = dbHelper;
             _storageProvider = storageProvider;
             _logger = logger;
+            _signalsManager = signalsManager;
 
             _uploadToServerListener = new TcpListener(IPAddress.Loopback, 0);
             _downloadFromServerListener = new TcpListener(IPAddress.Loopback, 0);
@@ -258,6 +264,9 @@ namespace BitContainer.Service.Storage.Managers
             Int64 fileSize = await networkStream.ReadInt64Async();
 
             CSharableEntity newFile = await _storageProvider.Entities.AddFileAsync(networkStream, parent, userId, fileName, fileSize);
+            
+            _signalsManager.SignalEntityCreation(newFile.AccessWrapper.Entity.Id, userId);
+            _signalsManager.SignalStatsUpdate(userId);
 
             await networkStream.WriteGuidAsync(newFile.AccessWrapper.Entity.Id.ToGuid());
         }

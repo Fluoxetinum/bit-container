@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BitContainer.Contracts.V1;
 using BitContainer.Contracts.V1.ActionContracts;
 using BitContainer.Contracts.V1.Auth;
+using BitContainer.Contracts.V1.Events;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
 using BitContainer.DataAccess.DataProviders.Interfaces;
@@ -16,14 +17,17 @@ using BitContainer.DataAccess.Models.StorageEntities;
 using BitContainer.Http.Exceptions;
 using BitContainer.Http.Proxies;
 using BitContainer.Service.Storage.Helpers;
+using BitContainer.Service.Storage.Managers;
+using BitContainer.Service.Storage.Managers.Interfaces;
 using BitContainer.Services.Shared;
 using BitContainer.Shared.Models;
-using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
+using Newtonsoft.Json;
 
 namespace BitContainer.Service.Storage.Controllers
 {
@@ -31,6 +35,8 @@ namespace BitContainer.Service.Storage.Controllers
     [ApiController]
     public class StorageController : ControllerBase
     {
+        private ISignalsManager _signalsManager;
+
         private readonly IAuthServiceProxy _authServiceProxy;
         private readonly ILoadsManager _loadsManager;
         private readonly IStorageProvider _storage;
@@ -39,18 +45,22 @@ namespace BitContainer.Service.Storage.Controllers
         public CUserId UserId => 
             new CUserId(new Guid(User.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value));
 
+
+
         public StorageController(
             IAuthServiceProxy authServiceProxy,
             ILoadsManager loadsManager,
             IStorageProvider storageProvider, 
-            ILogger<StorageController> logger)
+            ILogger<StorageController> logger,
+            ISignalsManager signalsManager)
         {
             _authServiceProxy = authServiceProxy;
+            _signalsManager = signalsManager;
             _loadsManager = loadsManager;
             _storage = storageProvider;
             _logger = logger;
         }
-        
+
         [Authorize]
         [HttpGet("entities/{parentId}")]
         public ActionResult<List<CSharableEntityContract>> GetEntities(Guid parentId)
@@ -196,6 +206,9 @@ namespace BitContainer.Service.Storage.Controllers
 
             CSharableEntity createdDir = _storage.Entities.AddDir(parent, userId, dirName);
 
+            _signalsManager.SignalEntityCreation(createdDir.AccessWrapper.Entity.Id, userId);
+            _signalsManager.SignalStatsUpdate(userId);
+
             _logger.LogInformation($"User{userId} added dir #{createdDir.AccessWrapper.Entity.Id} (Owner {parent}).");
 
             return ContractsConverter.Convert(createdDir);
@@ -219,8 +232,12 @@ namespace BitContainer.Service.Storage.Controllers
             {
                 return Unauthorized(e.Message);
             }
+
+            _signalsManager.SignalEntityDeletion(entityId, userId);
             
             _storage.Entities.DeleteEntity(entityId);
+
+            _signalsManager.SignalStatsUpdate(userId);
 
             _logger.LogInformation($"User '{userId}' deleted entity #{entityId}.");
 
@@ -249,6 +266,9 @@ namespace BitContainer.Service.Storage.Controllers
             }
 
             _storage.Entities.RenameEntity(entityId, newName);
+
+            _signalsManager.SignalEntityRenaming(entityId, newName, userId);
+            _signalsManager.SignalStatsUpdate(userId);
 
             _logger.LogInformation($"User '{UserId}' renamed entity #{entityId} to '{newName}'.");
 
@@ -280,7 +300,10 @@ namespace BitContainer.Service.Storage.Controllers
                 return Unauthorized(e.Message);
             }
 
-            _storage.Entities.CopyEntity(entityId, userId, parent);
+            CStorageEntityId id = _storage.Entities.CopyEntity(entityId, userId, parent).Result;
+
+            _signalsManager.SignalEntityCreation(id, userId);
+            _signalsManager.SignalStatsUpdate(userId);
 
             return Ok();
         }

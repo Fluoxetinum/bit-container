@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 using BitContainer.Contracts.V1.ActionContracts;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
+using BitContainer.Http.Exceptions;
 using BitContainer.Presentation.Controllers.Proxies;
 using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.Helpers;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Jobs;
+using BitContainer.Presentation.Views.Dialogs;
 using BitContainer.Shared.Models;
 
 namespace BitContainer.Presentation.Controllers.Service
@@ -27,7 +30,7 @@ namespace BitContainer.Presentation.Controllers.Service
         {
             List<CSharableEntityContract> result = null;
             
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 result = await _cStorageServiceProxy.GetOwnerStorageEntites(parentId.ToGuid());
             });
@@ -39,7 +42,7 @@ namespace BitContainer.Presentation.Controllers.Service
         {
             List<CSharableEntityContract> result = null;
 
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 result = await _cStorageServiceProxy.GetSharedStorageEntites(parentId.ToGuid());
             });
@@ -51,7 +54,7 @@ namespace BitContainer.Presentation.Controllers.Service
         {
             List<CSearchResultContract> result = null;
 
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 result = await _cStorageServiceProxy.SearchStorageEntities(parentId.ToGuid(), pattern);
             });
@@ -63,7 +66,7 @@ namespace BitContainer.Presentation.Controllers.Service
         {
             List<CSearchResultContract> result = null;
 
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 result = await _cStorageServiceProxy.SearchSharedStorageEntities(parentId.ToGuid(), pattern);
             });
@@ -74,7 +77,7 @@ namespace BitContainer.Presentation.Controllers.Service
         public async Task UpdateShare(String userName, EAccessType access, IStorageEntityUi uiEntity)
         {
             CNewShareContract newNewShare = new CNewShareContract(userName, access, uiEntity.Id.ToGuid());
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 await _cStorageServiceProxy.UpdateShare(newNewShare);
             });
@@ -86,17 +89,19 @@ namespace BitContainer.Presentation.Controllers.Service
             
             CSharableEntityContract result = null;
 
-            await HandleAuthError(async () =>
+            Boolean res = await HandleErrors(async () =>
             {
                 result = await _cStorageServiceProxy.CreateDirectory(contract);
             });
+
+            if (!res) return null;
 
             return ContractsConverter.Convert(result);
         }
 
         public async Task DeleteEntity(CStorageEntityId id)
         {
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 await _cStorageServiceProxy.DeleteEntity(id.ToGuid());
             });
@@ -106,7 +111,7 @@ namespace BitContainer.Presentation.Controllers.Service
         {
             CRenameEntityContract renameContract = new CRenameEntityContract(id.ToGuid(), newName);
 
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 await _cStorageServiceProxy.RenameEntity(renameContract);
             });
@@ -116,13 +121,13 @@ namespace BitContainer.Presentation.Controllers.Service
         {
             CCopyEntityContract copyContract = new CCopyEntityContract(entityId.ToGuid(), newParentId.ToGuid());
 
-            await HandleAuthError(async () =>
+            await HandleErrors(async () =>
             {
                 await _cStorageServiceProxy.CopyEntity(copyContract);
             });
         }
 
-        public  async Task<ISharableEntityUi> UploadFile(String path, CStorageEntityId parentId)
+        public async Task<ISharableEntityUi> UploadFile(String path, CStorageEntityId parentId)
         {
             CSharableEntityContract file = null;
             FileInfo info = new FileInfo(path);
@@ -130,10 +135,12 @@ namespace BitContainer.Presentation.Controllers.Service
             var progress = new Progress<Double>(i => job.Progress = i);
             AbstractJob.NotifyJobCreated(job);
 
-            await HandleAuthError(async () =>
+            Boolean res = await HandleErrors(async () =>
             {
                 file = await _cStorageServiceProxy.UploadFile(info, parentId.ToGuid(), progress);
             });
+
+            if (!res) return null;
 
             return ContractsConverter.Convert(file);
         }
@@ -146,15 +153,29 @@ namespace BitContainer.Presentation.Controllers.Service
             await _cStorageServiceProxy.LoadEntity(path, entity, progress);
         }
 
-        public static async Task HandleAuthError(Func<Task> action)
+        public static async Task<Boolean> HandleErrors(Func<Task> action)
         {
             try
             {
                 await action();
+                return true;
             }
             catch (UnauthorizedAccessException)
             {
                 NavigationController.GoToLoginPage();
+                return false;
+            }
+            catch (StorageOperationCanceledException e)
+            {
+                ErrorDialog dialog = new ErrorDialog(e.Message)
+                {
+                    Title = "Error",
+                    ResizeMode = ResizeMode.NoResize,
+                    Owner = Application.Current.MainWindow,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
+                dialog.ShowDialog();
+                return false;
             }
         }
 

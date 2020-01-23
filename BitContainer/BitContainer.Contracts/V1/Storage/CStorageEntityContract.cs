@@ -13,6 +13,8 @@ namespace BitContainer.Contracts.V1.Storage
         public DateTime Created { get; set; }
         public Int64 Size { get; set; }
 
+        public CStorageEntityContract() { }
+
         public CStorageEntityContract(EStorageEntityTypeContract type, Guid id, Guid parentId, Guid ownerId, String name, DateTime created, Int64 size)
         {
             Type = type;

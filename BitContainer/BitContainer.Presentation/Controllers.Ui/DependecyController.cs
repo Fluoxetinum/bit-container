@@ -20,19 +20,20 @@ namespace BitContainer.Presentation.Controllers.Ui
             HttpHelper = new CHttpHelper();
         }
 
-        public static FileSystemController GetFileSystemController()
-        {
-            var storageServiceProxy = new CStorageServiceProxy(HttpHelper, MainServiceUrl);
-            var storageController = new CStorageController(storageServiceProxy);
-            var eventsController = new FileSystemEventsController(); 
-            return new FileSystemController(storageController, eventsController);
-        }
-
         public static CAuthController GetAuthController()
         {
             var authServiceProxy = new СAuthServiceProxy(HttpHelper, MainServiceUrl);
             return new CAuthController(authServiceProxy);
         }
+
+        public static FileSystemController GetFileSystemController()
+        {
+            var storageServiceProxy = new CStorageServiceProxy(HttpHelper, MainServiceUrl);
+            var storageController = new CStorageController(storageServiceProxy);
+            var eventsController = new FileSystemEventsController(MainServiceUrl); 
+            return new FileSystemController(storageController, eventsController);
+        }
+
 
     }
 }

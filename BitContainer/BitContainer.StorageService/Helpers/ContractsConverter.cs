@@ -78,5 +78,11 @@ namespace BitContainer.Service.Storage.Helpers
             return contracts;
         }
 
+        public static CStatsContract Convert(CStats stats)
+        {
+            return new CStatsContract(stats.FilesCount, stats.DirsCount, stats.StorageSize);
+        } 
+
+
     }
 }

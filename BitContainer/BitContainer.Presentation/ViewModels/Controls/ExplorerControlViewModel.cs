@@ -96,7 +96,8 @@ namespace BitContainer.Presentation.ViewModels.Controls
 
         public void OnStorageEntityCreated(object sender, NodeChangedEventArgs e)
         {
-            _arrangeController.AddToArrangement(e.Node);
+            if (e.Node.Parent.Equals(CurrentNode))
+                _arrangeController.AddToArrangement(e.Node);
         }
 
         public async void OnDirectoryOpened(object sender, NodeOpenedEventArgs e)

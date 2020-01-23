@@ -94,12 +94,10 @@ namespace BitContainer.Presentation.ViewModels.Controls
             foreach (var pathEntry in pathFromRoot)
             {
                 founded = tier.SingleOrDefault(dirNode => dirNode.FsNode.Equals(pathEntry));
-                if (founded == null) throw new ApplicationException("Dir tree is not mapped to virtual file system.");
+                if (founded == null) return null;
                 tier.Clear();
                 tier = new List<DirTreeNode>(founded.Children);
             }
-            if (founded == null) 
-                throw new ApplicationException("Dir tree is not mapped to virtual file system.");
 
             return founded;
         }
@@ -111,6 +109,9 @@ namespace BitContainer.Presentation.ViewModels.Controls
             if (e.Node.IsFile) return;
             FileSystemNode fsNode = e.Node;
             DirTreeNode parentNode = await GetCorrespondingDirNode(fsNode.Parent);
+
+            if (parentNode == null) return;
+            
             DirTreeNode treeNode = parentNode.Children.SingleOrDefault(n => n.FsNode.Equals(fsNode));
             parentNode.Children.Remove(treeNode);
         }
@@ -120,6 +121,9 @@ namespace BitContainer.Presentation.ViewModels.Controls
             if (e.Node.IsFile) return;
             FileSystemNode fsNode = e.Node;
             DirTreeNode parentNode = await GetCorrespondingDirNode(fsNode.Parent);
+
+            if (parentNode == null) return;
+
             parentNode.Children.Add(new DirTreeNode(fsNode));
         }
 

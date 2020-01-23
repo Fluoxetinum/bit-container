@@ -25,7 +25,7 @@ namespace BitContainer.DataAccess.DataProviders.Storage
         Boolean EntityExists(CStorageEntityId parentId, CUserId userId, string name);
         void DeleteEntity(CStorageEntityId entityId);
         void RenameEntity(CStorageEntityId entityId, string name);
-        Task CopyEntity(CStorageEntityId entityId, CUserId userId, IStorageEntity newParent);
+        Task<CStorageEntityId> CopyEntity(CStorageEntityId entityId, CUserId userId, IStorageEntity newParent);
 
         Task<CSharableEntity> AddFileAsync(Stream sourceStream, IStorageEntity parent, CUserId ownerId, String name,
             Int64 size);

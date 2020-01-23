@@ -58,7 +58,7 @@ namespace BitContainer.Presentation.ViewModels
         {
             _fileSystemController = fileSystemController;
 
-            Menu = new MenuControlViewModel();
+            Menu = new MenuControlViewModel(_fileSystemController.FileSystemEvents);
             DirTree = new DirTreeControlViewModel(_fileSystemController);
             Explorer = new ExplorerControlViewModel(_fileSystemController);
             LoadsPanel = new LoadsPanelViewModel();

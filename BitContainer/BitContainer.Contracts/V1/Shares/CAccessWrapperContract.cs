@@ -9,6 +9,8 @@ namespace BitContainer.Contracts.V1.Shares
         public CStorageEntityContract EntityContract { get; set; }
         public EAccessType Access { get; set; }
         
+        public CAccessWrapperContract(){}
+
         public CAccessWrapperContract(CStorageEntityContract entityContract, EAccessType access)
         {
             EntityContract = entityContract;

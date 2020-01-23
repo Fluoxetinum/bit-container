@@ -9,6 +9,8 @@ namespace BitContainer.Contracts.V1.Shares
         public Guid UserId { get; set; }
         public EAccessType Access { get; set; }
 
+        public CShareContract(){}
+
         public CShareContract(Guid entityId, Guid userId, EAccessType access)
         {
             EntityId = entityId;

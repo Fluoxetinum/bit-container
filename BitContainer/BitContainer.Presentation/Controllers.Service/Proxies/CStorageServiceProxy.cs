@@ -11,6 +11,7 @@ using BitContainer.Contracts.V1.ActionContracts;
 using BitContainer.Contracts.V1.Shares;
 using BitContainer.Contracts.V1.Storage;
 using BitContainer.Http;
+using BitContainer.Http.Exceptions;
 using BitContainer.Http.Requests;
 using BitContainer.Presentation.Controllers.Service;
 using BitContainer.Presentation.Models;
@@ -220,6 +221,11 @@ namespace BitContainer.Presentation.Controllers.Proxies
             catch (HttpRequestException) when (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 throw new UnauthorizedAccessException();
+            }
+            catch (HttpRequestException e) when (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                string msg = response.Content.ReadAsStringAsync().Result;
+                throw new StorageOperationCanceledException(msg);
             }
         }
     }

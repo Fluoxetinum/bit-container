@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BitContainer.Presentation.ViewModels;
 using BitContainer.Presentation.ViewModels.Jobs;
 
-namespace BitContainer.Presentation.Controllers.EventParams
+namespace BitContainer.Presentation.Controllers.Ui.EventParams
 {
     public class AbstractJobEventArgs : EventArgs
     {

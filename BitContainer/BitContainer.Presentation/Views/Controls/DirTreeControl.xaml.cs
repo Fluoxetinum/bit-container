@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Controllers.EventParams;
 using BitContainer.Presentation.Controllers.Service;
 using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.ViewModels;

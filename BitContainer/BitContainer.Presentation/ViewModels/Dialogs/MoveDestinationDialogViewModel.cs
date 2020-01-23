@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BitContainer.Presentation.Controllers;
-using BitContainer.Presentation.Controllers.EventParams;
 using BitContainer.Presentation.Controllers.Service;
 using BitContainer.Presentation.Controllers.Ui;
 using BitContainer.Presentation.ViewModels.Base;

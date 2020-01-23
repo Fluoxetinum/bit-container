@@ -94,7 +94,8 @@ namespace BitContainer.Presentation.Controllers.Ui
         public void RemoveFromArrangement(FileSystemNode node)
         {
             String key = _groupKeys[_lastGroupType](node);
-            Arrangement[key].Remove(node);
+            if (Arrangement.ContainsKey(key))
+                Arrangement[key].Remove(node);
         }
 
         private Dictionary<String, ObservableCollection<FileSystemNode>> Group(GroupType groupType)

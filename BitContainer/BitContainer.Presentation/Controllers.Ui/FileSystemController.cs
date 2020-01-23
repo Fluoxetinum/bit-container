@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BitContainer.Presentation.Controllers.Service;
+using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.Models;
 using BitContainer.Presentation.ViewModels.Nodes;
 using BitContainer.Shared.Models;
@@ -24,8 +26,9 @@ namespace BitContainer.Presentation.Controllers.Ui
         public FileSystemController(CStorageController storageController, FileSystemEventsController eventsController)
         {
             _storageController = storageController;
-
+            
             FileSystemEvents = eventsController;
+
             Root = FileSystemNode.CreateRootMock(viewedName:"🗃", shared:false);
             SharedRoot = FileSystemNode.CreateRootMock(viewedName:"🔗", shared:true);
 
@@ -37,10 +40,54 @@ namespace BitContainer.Presentation.Controllers.Ui
             {
                 [SharedRoot.Id] = SharedRoot
             };
+
+            FileSystemEvents.EntityRenamed += OnEntityRenamed;
+            FileSystemEvents.EntityDeleted += EntityDeleted;
+            FileSystemEvents.EntityAdded += OnEntityAdded;
+            FileSystemEvents.Connect();
+        }
+
+        private void OnEntityAdded(object sender, EntityAddedEventArgs e)
+        {
+            ISharableEntityUi newEntity = e.Share;
+
+            var fs = GetFsById(newEntity.Entity.ParentId);
+            if (fs == null) return;
+
+            FileSystemNode parent = fs[newEntity.Entity.ParentId];
+            FileSystemNode newNode = new FileSystemNode(parent, newEntity);
+            fs[newEntity.Entity.Id] = newNode;
+            FileSystemEvents.NotifyStorageEntityCreated(newNode);
+        }
+
+        private void EntityDeleted(object sender, EntityDeletedEventArgs e)
+        {
+            var fs = GetFsById(e.EntityId);
+            if (fs == null) return;
+
+            FileSystemNode node = fs[e.EntityId];
+            fs.Remove(e.EntityId);
+            FileSystemEvents.NotifyStorageEntityDeleted(node);
+        }
+
+        private void OnEntityRenamed(object? sender, EntityRenamedEventArgs e)
+        {
+            var fs = GetFsById(e.EntityId);
+            if (fs == null) return;
+            fs[e.EntityId].Name = e.NewName;
         }
 
         private void RemoveFromFs(FileSystemNode node) => GetFs(node).Remove(node.Id);
-        
+
+        private Dictionary<CStorageEntityId, FileSystemNode> GetFsById(CStorageEntityId id)
+        {
+            if (_ownFs.ContainsKey(id))
+                return _ownFs;
+            if (_sharedFs.ContainsKey(id))
+                return _sharedFs;
+            return null;
+        }
+
         private Dictionary<CStorageEntityId, FileSystemNode> GetFs(FileSystemNode node) => 
             node.IsSharedWithUser ? _sharedFs : _ownFs;
 
@@ -140,6 +187,8 @@ namespace BitContainer.Presentation.Controllers.Ui
             if (parent.IsFile) throw new InvalidOperationException("File can only be uploaded from disk by now.");
 
             ISharableEntityUi newDir = await _storageController.CreateDirectory(name, parent.Id);
+            if (newDir == null) return;
+            
             FileSystemNode newNode = new FileSystemNode(parent, newDir);
             
             FileSystemEvents.NotifyStorageEntityCreated(newNode);
@@ -150,6 +199,8 @@ namespace BitContainer.Presentation.Controllers.Ui
             if (parent.IsFile) throw new InvalidOperationException("File can only be uploaded in dir.");
 
             ISharableEntityUi newFIle = await _storageController.UploadFile(name, parent.Id);
+            if (newFIle == null) return;
+
             FileSystemNode newNode = new FileSystemNode(parent, newFIle);
 
             FileSystemEvents.NotifyStorageEntityCreated(newNode);

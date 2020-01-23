@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BitContainer.Contracts.V1;
+﻿using BitContainer.Contracts.V1;
 
-namespace BitContainer.StorageService.Managers.Interfaces
+namespace BitContainer.Service.Storage.Managers.Interfaces
 {
     public interface ILoadsManager
     {

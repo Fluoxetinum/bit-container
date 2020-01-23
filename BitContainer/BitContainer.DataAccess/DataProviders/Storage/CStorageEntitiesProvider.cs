@@ -69,7 +69,7 @@ namespace BitContainer.DataAccess.DataProviders.Storage
             return query.Execute(command);
         }
         
-        private async Task CopyDir(SqlCommand command, CDirectory dirToCopy, CUserId userId, IStorageEntity newParentId)
+        private async Task<CStorageEntityId> CopyDir(SqlCommand command, CDirectory dirToCopy, CUserId userId, IStorageEntity newParentId)
         {
             var childrenQuery = new GetChildrenQuery(dirToCopy.Id).Ascending();
             SortedDictionary<Int32, List<IStorageEntity>> children = childrenQuery.Execute(command);
@@ -98,12 +98,15 @@ namespace BitContainer.DataAccess.DataProviders.Storage
                     }
                 }
             }
+
+            return newRootDir.AccessWrapper.Entity.Id;
         }
 
-        private async Task CopyFile(SqlCommand command, CFile file, CUserId userId, IStorageEntity newParentId)
+        private async Task<CStorageEntityId> CopyFile(SqlCommand command, CFile file, CUserId userId, IStorageEntity newParentId)
         {
             await using SqlFileStream fileStream = GetFileStream(command, file.Id, FileAccess.Read);
-            await AddFileAsync(command, sourceStream: fileStream, newParentId, userId, file.Name, file.Size);
+            CSharableEntity entity = await AddFileAsync(command, sourceStream: fileStream, newParentId, userId, file.Name, file.Size);
+            return entity.AccessWrapper.Entity.Id;
         }
 
         private CFileStreamInfo GetFileStreamInfo(SqlCommand command, CStorageEntityId fileId)
@@ -117,7 +120,7 @@ namespace BitContainer.DataAccess.DataProviders.Storage
             CStorageEntityId parentId = parent.Id;
             CUserId parentOwner = parentId.IsRootId ? userId : parent.OwnerId;
 
-            CStats stats = _statsProvider.GetStats(command, userId);
+            CStats stats = _statsProvider.GetStats(command, parentOwner);
             
             byte[] mockFileData = new byte[0];
             var query = new AddEntityQuery(parentId, parentOwner, name, mockFileData);
@@ -143,7 +146,7 @@ namespace BitContainer.DataAccess.DataProviders.Storage
             CStorageEntityId parentId = parent.Id;
             CUserId parentOwner = parentId.IsRootId ? userId : parent.OwnerId;
 
-            CStats stats = _statsProvider.GetStats(command, userId);
+            CStats stats = _statsProvider.GetStats(command, parentOwner);
             
             var query = new AddEntityQuery(parentId, parentOwner, name);
             query.Execute(command);
@@ -331,28 +334,33 @@ namespace BitContainer.DataAccess.DataProviders.Storage
             var query = new GetStorageEntityQuery(parentId, userId, name);
             return _dbHelper.ExecuteQuery(query);
         }
-
+        
         public Boolean EntityExists(CStorageEntityId parentId, CUserId userId, String name)
         {
             var query = new GetStorageEntityQuery(parentId, userId, name);
             return _dbHelper.ExecuteQuery(query) != null;
         }
 
-        public async Task CopyEntity(CStorageEntityId entityId, CUserId userId, IStorageEntity newParent)
+        public async Task<CStorageEntityId> CopyEntity(CStorageEntityId entityId, CUserId userId, IStorageEntity newParent)
         {
             IStorageEntity entity = GetStorageEntity(entityId);
 
+            CStorageEntityId newEntityId = new CStorageEntityId();
             switch (entity)
             {
                 case CFile file:
-                    await _dbHelper.ExecuteTransactionAsync(async (command) => await CopyFile(command, file, userId, newParent));
+                    await _dbHelper.ExecuteTransactionAsync(async (command) =>
+                        newEntityId = await CopyFile(command, file, userId, newParent));
                     break;
                 case CDirectory dir:
-                    await _dbHelper.ExecuteTransactionAsync(async (command) => await CopyDir(command, dir, userId, newParent));
+                    await _dbHelper.ExecuteTransactionAsync(async (command) => 
+                        newEntityId = await CopyDir(command, dir, userId, newParent));
                     break;
                 default:
                     throw new InvalidCastException(nameof(entity));
             }
+
+            return newEntityId;
         }
     }
 }

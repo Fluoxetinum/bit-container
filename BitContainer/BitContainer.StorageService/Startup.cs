@@ -7,10 +7,9 @@ using BitContainer.DataAccess.Scripts;
 using BitContainer.Http;
 using BitContainer.Http.Proxies;
 using BitContainer.Service.Storage.Managers;
+using BitContainer.Service.Storage.Managers.Interfaces;
 using BitContainer.Services.Shared;
 using BitContainer.Services.Shared.Middleware;
-using BitContainer.StorageService.Managers;
-using BitContainer.StorageService.Managers.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,6 +51,7 @@ namespace BitContainer.Service.Storage
             services.AddSingleton<IStorageProvider, CStorageProvider>();
             services.AddSingleton<IStatsProvider, CStatsProvider>();
             services.AddSingleton<ILoadsManager, CLoadsManager>();
+            services.AddSingleton<ISignalsManager, CSignalsManager>();
             services.AddSignalR();
             
             String authServiceUrl = 
@@ -80,6 +80,7 @@ namespace BitContainer.Service.Storage
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<CEventsHub>("/eventshub");
             });
         }
     }

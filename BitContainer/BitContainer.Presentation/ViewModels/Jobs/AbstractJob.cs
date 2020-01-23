@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BitContainer.Presentation.Controllers.EventParams;
+using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.ViewModels.Base;
 using MaterialDesignThemes.Wpf;
 

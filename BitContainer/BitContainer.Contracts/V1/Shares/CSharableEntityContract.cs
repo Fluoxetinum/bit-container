@@ -9,6 +9,8 @@ namespace BitContainer.Contracts.V1.Shares
         public CAccessWrapperContract AccessWrapper { get; set; }
         public List<CShareContract> Shares { get; set; }
 
+        public CSharableEntityContract(){}
+
         public CSharableEntityContract(CAccessWrapperContract accessWrapper, List<CShareContract> shares)
         {
             AccessWrapper = accessWrapper;

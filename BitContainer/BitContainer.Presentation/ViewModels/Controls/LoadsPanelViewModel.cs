@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using BitContainer.Presentation.Controllers.EventParams;
+using BitContainer.Presentation.Controllers.Ui.EventParams;
 using BitContainer.Presentation.ViewModels.Base;
 using BitContainer.Presentation.ViewModels.Jobs;
 
